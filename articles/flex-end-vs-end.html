@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flexbox: end vs. flex-end</title>
+    <link rel="stylesheet" href="../style.css">
+
+    <style>
+        .demo-area {
+            width: 100%;
+            background-color: #2a2a2a;
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            margin-block: 2rem;
+            color: #fff;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            background-color: #1e1e1e;
+            padding: 1rem;
+            border-radius: 8px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .control-group label {
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+
+        select {
+            padding: 8px;
+            border-radius: 5px;
+            border: none;
+            background-color: #444;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .comparison-container {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .demo-box {
+            border: 2px solid #555;
+            border-radius: 8px;
+            padding: 1rem;
+            background-color: #1e1e1e;
+            text-align: center;
+
+            h3 {
+                margin-top: 0;
+            }
+        }
+
+        .flex-container {
+            display: flex;
+            padding: 1rem;
+            background-color: #333;
+            border-radius: 6px;
+            min-height: 100px;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .item {
+            background-color: #007bff;
+            color: white;
+            padding: 1.5rem;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+            margin: 5px;
+            flex-shrink: 0;
+        }
+
+        .item:nth-child(2) {
+            background-color: #28a745;
+        }
+
+        .item:nth-child(3) {
+            background-color: #dc3545;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <h1><a href="../index.html">Code Encounters</a></h1>
+    </header>
+
+    <main class="container">
+        <article class="blog-post">
+            <h1><code>end</code> vs. <code>flex-end</code> in flexboxes</h1>
+            <time datetime="2025-09-21">September 21, 2025</time>
+
+            <p>
+                The key difference between <code class="inline-code">flex-end</code> and <code
+                    class="inline-code">end</code> is context. The former is tied to the <strong>flex container's
+                    direction</strong>, while the latter is a logical value tied to the <strong>writing direction of the
+                    language</strong> (e.g., Left-to-Right vs. Right-to-Left).
+            </p>
+            <p>
+                This distinction is crucial for creating layouts that adapt correctly to international audiences. When
+                <code class="inline-code">flex-direction</code> is set to <code class="inline-code">row-reverse</code>,
+                for instance, <code class="inline-code">flex-end</code> will push items to the left. However, <code
+                    class="inline-code">end</code> will still push items to the right in English (a LTR language),
+                because that is the logical "end" of the line.
+            </p>
+            <p>
+                Use the interactive demo below to see this behavior in action.
+            </p>
+
+            <div class="demo-area">
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="flex-direction">Flex Direction</label>
+                        <select id="flex-direction">
+                            <option value="row">row</option>
+                            <option value="row-reverse">row-reverse</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="language-direction">Language Direction</label>
+                        <select id="language-direction">
+                            <option value="ltr">English (LTR)</option>
+                            <option value="rtl">Arabic (RTL)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="comparison-container" id="demo-wrapper">
+                    <div class="demo-box">
+                        <h3><code>justify-content: flex-end</code></h3>
+                        <div class="flex-container" id="container-flex-end">
+                            <div class="item" data-en="One" data-ar="واحد">One</div>
+                            <div class="item" data-en="Two" data-ar="اثنان">Two</div>
+                            <div class="item" data-en="Three" data-ar="ثلاثة">Three</div>
+                        </div>
+                    </div>
+                    <div class="demo-box">
+                        <h3><code>justify-content: end</code></h3>
+                        <div class="flex-container" id="container-end">
+                            <div class="item" data-en="One" data-ar="واحد">One</div>
+                            <div class="item" data-en="Two" data-ar="اثنان">Two</div>
+                            <div class="item" data-en="Three" data-ar="ثلاثة">Three</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 My Awesome Blog. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        const flexDirectionSelect = document.getElementById('flex-direction');
+        const langDirectionSelect = document.getElementById('language-direction');
+        const demoWrapper = document.getElementById('demo-wrapper');
+        const containerFlexEnd = document.getElementById('container-flex-end');
+        const containerEnd = document.getElementById('container-end');
+        const items = document.querySelectorAll('.item');
+
+        function updateDemo() {
+            const flexDirection = flexDirectionSelect.value;
+            const langDirection = langDirectionSelect.value;
+            const isRTL = langDirection === 'rtl';
+
+            containerFlexEnd.style.flexDirection = flexDirection;
+            containerEnd.style.flexDirection = flexDirection;
+
+            containerFlexEnd.style.justifyContent = 'flex-end';
+            containerEnd.style.justifyContent = 'end';
+
+            demoWrapper.dir = langDirection;
+            demoWrapper.lang = isRTL ? 'ar' : 'en';
+
+            items.forEach(item => {
+                item.textContent = isRTL ? item.dataset.ar : item.dataset.en;
+            });
+        }
+
+        flexDirectionSelect.addEventListener('change', updateDemo);
+        langDirectionSelect.addEventListener('change', updateDemo);
+
+        updateDemo();
+    </script>
+
+</body>
+
+</html>
