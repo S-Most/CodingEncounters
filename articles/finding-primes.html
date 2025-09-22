@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Optimizing Prime Number Generation</title>
+
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"
+        defer></script>
+
+    <style>
+        :root {
+            --mermaid-bg: #FFFFFF;
+            --mermaid-line: #444;
+            --mermaid-text: #333;
+            --mermaid-node-bg: #f8f9fa;
+            --mermaid-node-border: var(--primary-color);
+        }
+
+        main {
+            background: var(--card-background);
+            margin-block: 2rem;
+            padding: clamp(1rem, 5vw, 2.5rem);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+
+        /* Pros and Cons styling */
+        .pro-con {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            margin-top: 2rem;
+            gap: 1.5rem;
+        }
+
+        .pro,
+        .con {
+            flex: 1 1 300px;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-left: 5px solid;
+        }
+
+        .pro {
+            background: #e6ffed;
+            border-color: #4caf50;
+            color: #2E7D32;
+        }
+
+        .con {
+            background: #ffebee;
+            border-color: #f44336;
+            color: #C62828;
+        }
+
+        /* Mermaid diagram layout */
+        .mermaid {
+            display: grid;
+            justify-items: center;
+            overflow: auto;
+            padding-block: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Consistent header with a link back to the homepage -->
+    <header class="header">
+        <h1><a href="../index.html" style="color: white; text-decoration: none;">Code Encounters</a></h1>
+    </header>
+
+    <main>
+        <h1>A Journey in Prime Number Generation</h1>
+        <p class="article-date"><time datetime="2025-09-15">September 15, 2025</time></p>
+
+        <p>Generating prime numbers is a classic problem in computer science. While the concept is simple, the
+            efficiency of the solution can vary dramatically. Let's explore the journey from a basic, intuitive approach
+            to a highly optimized algorithm that can handle massive calculations without running out of memory.</p>
+
+        <section>
+            <h2>Method 1: The Naive Approach - Trial Division</h2>
+            <p>The most straightforward way to check if a number is prime is to try dividing it by smaller numbers. If
+                we find any number that divides it perfectly (other than 1 and itself), it's not prime. We can make a
+                few simple optimizations:</p>
+            <ul>
+                <li>We only need to check for divisors up to the square root of the number.</li>
+                <li>After checking 2, we only need to test odd numbers as potential divisors.</li>
+            </ul>
+
+            <h3>The Logic Flow</h3>
+            <p>The core logic is encapsulated in a <code>checkPrime</code> function, which is then called repeatedly to
+                build a list of primes.</p>
+            <div class="mermaid">
+                graph TD
+                A["Start: checkPrime(num)"] --> B{Is num <= 1?}; B -- Yes --> C[Return false];
+                    B -- No --> D{Is num == 2?};
+                    D -- Yes --> E[Return true];
+                    D -- No --> F{Is num even?};
+                    F -- Yes --> C;
+                    F -- No --> G[Check odd factors];
+                    G --> H{"Is num % i == 0?"};
+                    H -- Yes --> I[Return false];
+                    H -- No --> J[Continue Loop];
+                    G -- Loop Finished --> K[Return true];
+            </div>
+
+            <h3>The Code</h3>
+            <pre><code class="language-javascript">function checkPrime(num) {
+    for (let i = 3; i &lt;= Math.ceil(Math.sqrt(num)); i += 2) {
+        if (num % i === 0) return false;
+    }
+    return true;
+}
+
+function getNPrimeArray(count) {
+    if (count &lt;= 0) return [];
+    if (count === 1) return [2];
+
+    const output = [2];
+    for (let num = 3; output.length &lt; count; num += 2) {
+        if (checkPrime(num)) output.push(num);
+    }
+    return output;
+}</code></pre>
+
+            <div class="pro-con">
+                <div class="pro">
+                    <strong>Pros:</strong> Simple to understand and implement. Uses very little memory.
+                </div>
+                <div class="con">
+                    <strong>Cons:</strong> Extremely inefficient. For each new number, we are re-doing division checks.
+                    Finding the 100,000th prime is very slow.
+                </div>
+            </div>
+        </section>
+
+        <hr>
+
+        <section>
+            <h2>Method 2: A Major Leap Forward - The Sieve of Eratosthenes</h2>
+            <p>Instead of checking numbers one by one, the Sieve of Eratosthenes works by eliminating possibilities.
+                Imagine you have a list of all integers up to a certain limit. The algorithm works as follows:</p>
+            <ol>
+                <li>Start with the first prime, 2, and cross out all of its multiples (4, 6, 8, ...).</li>
+                <li>Move to the next number that hasn't been crossed out, which is 3. Cross out all of its multiples (6,
+                    9, 12, ...).</li>
+                <li>The next available number is 5. Cross out its multiples.</li>
+                <li>Repeat this process. The numbers that remain are all prime!</li>
+            </ol>
+
+            <h3>Visualizing the Sieve</h3>
+            <p>This diagram shows the process for numbers up to 20. We find the primes by progressively "sieving out"
+                the non-primes.</p>
+            <div class="mermaid">
+                graph TD
+                subgraph ID1 [Initial Numbers]
+                direction LR
+                N2(2) --- N3(3) --- N4(4) --- N5(5) --- N6(6) --- N7(7) --- N8(8) --- N9(9) --- N10(10) --- N11(11) ---
+                N12(12) --- N13(13) --- N14(14) --- N15(15) --- N16(16) --- N17(17) --- N18(18) --- N19(19) --- N20(20)
+                end
+
+                subgraph ID2 [Step 1: Sieve with 2]
+                P2(&lt;b&gt;2 is Prime&lt;/b&gt;)
+                P2 --> M4(4)
+                P2 --> M6(6)
+                P2 --> M8(8)
+                P2 --> M10(10)
+                P2 --> M12(12)
+                P2 --> M14(14)
+                P2 --> M16(16)
+                P2 --> M18(18)
+                P2 --> M20(20)
+                style M4 fill:#ffcccb
+                style M6 fill:#ffcccb
+                style M8 fill:#ffcccb
+                style M10 fill:#ffcccb
+                style M12 fill:#ffcccb
+                style M14 fill:#ffcccb
+                style M16 fill:#ffcccb
+                style M18 fill:#ffcccb
+                style M20 fill:#ffcccb
+                end
+
+                subgraph ID3 [Step 2: Sieve with 3]
+                P3(&lt;b&gt;3 is Prime&lt;/b&gt;)
+                P3 --> M9(9)
+                P3 --> M15(15)
+                style M9 fill:#ffcccb
+                style M15 fill:#ffcccb
+                end
+
+                subgraph ID4 [Step 3: Sieve with 5]
+                P5(&lt;b&gt;5 is Prime&lt;/b&gt;)
+                P5 --> M25("25 is > 20")
+                end
+
+                subgraph ID5 [Result]
+                direction LR
+                R2(2)---R3(3)---R5(5)---R7(7)---R11(11)---R13(13)---R17(17)---R19(19)
+                end
+
+                ID1 --> ID2 --> ID3 --> ID4 --> ID5
+            </div>
+
+            <h3>The "RangeError" Problem</h3>
+            <p>The Sieve is blazing fast, but it has a fatal flaw. To run it, we must first create a boolean array for
+                every number up to our estimated limit. If we need to find the 10 millionth prime, the limit is a
+                massive number. Creating an array of this size will exceed the memory limits of the JavaScript engine,
+                causing a <code>RangeError: Invalid array length</code> crash.</p>
+
+            <div class="pro-con">
+                <div class="pro">
+                    <strong>Pros:</strong> Extremely fast for generating all primes up to a given limit.
+                </div>
+                <div class="con">
+                    <strong>Cons:</strong> Very memory-intensive. Impractical for finding a large number
+                    of primes due to memory constraints.
+                </div>
+            </div>
+        </section>
+
+        <hr>
+
+        <section>
+            <h2>Method 3: The Optimized Solution - The Segmented Sieve</h2>
+            <p>The Segmented Sieve solves the memory problem by keeping the brilliant logic of the Sieve of Eratosthenes
+                but applying it in smaller, manageable chunks or "segments".</p>
+            <p>The strategy is:</p>
+            <ol>
+                <li><strong>Find Base Primes:</strong> First, run a regular Sieve for a relatively small range (e.g., up
+                    to the square root of your total limit). This gives us all the "base" primes we need.</li>
+                <li><strong>Process in Segments:</strong> Instead of one giant array, process the full range
+                    in segments. For each segment, use our list of base primes to cross out
+                    multiples <em>only within that small segment</em>.</li>
+                <li><strong>Collect and Repeat:</strong> Collect the primes found in the segment and move on to the
+                    next one, repeating until we have our target count of primes.</li>
+            </ol>
+
+            <h3>Visualizing the Segments</h3>
+            <p>This diagram shows how the total range is broken down. The sieving process is applied to each smaller
+                segment individually, keeping memory usage low.</p>
+            <div class="mermaid">
+                graph TD
+                subgraph "Total Range [0 to Limit]"
+                A["&lt;b&gt;Step 1:&lt;/b&gt; Find Base Primes&lt;br/&gt;(Sieve up to sqrt(Limit))"]
+                subgraph B ["&lt;b&gt;Step 2:&lt;/b&gt; Process Range in Segments"]
+                direction LR
+                C1["Segment 1"] --> C2["Segment 2"] --> C3["..."] --> C4["Final Segment"]
+                end
+                end
+                A -- "Use to sieve" --> C1; A -- "Use to sieve" --> C2; A -- "Use to sieve" --> C3; A -- "Use to sieve"
+                --> C4;
+                subgraph D[Final Prime List]
+                P1("...")
+                end
+                C1 --> D; C2 --> D; C3 --> D; C4 --> D;
+            </div>
+
+            <h3>The Code</h3>
+            <pre><code class="language-javascript">function getPrimesSegmentedSieve(count) {
+    if (count &lt;= 0) return [];
+    const limit = count &lt; 6 ? 13 : Math.ceil(count * (Math.log(count) + Math.log(Math.log(count))));
+    const sqrtLimit = Math.floor(Math.sqrt(limit));
+    const primes = [];
+
+    const isPrimeBase = new Array(sqrtLimit + 1).fill(true);
+    for (let p = 2; p * p &lt;= sqrtLimit; p++) {
+        if (isPrimeBase[p]) {
+            for (let i = p * p; i &lt;= sqrtLimit; i += p) isPrimeBase[i] = false;
+        }
+    }
+    for (let p = 2; p &lt;= sqrtLimit; p++) {
+        if (isPrimeBase[p]) primes.push(p);
+    }
+    if (primes.length >= count) return primes.slice(0, count);
+
+    const segmentSize = Math.max(sqrtLimit, 16384);
+    for (let low = sqrtLimit + 1; low &lt;= limit; low += segmentSize) {
+        if (primes.length >= count) break;
+        const high = Math.min(low + segmentSize - 1, limit);
+        const isPrimeSegment = new Array(segmentSize).fill(true);
+
+        for (const p of primes) {
+            if (p * p > high) break;
+            let start = Math.floor(low / p) * p;
+            if (start &lt; low) start += p;
+            for (let j = start; j &lt;= high; j += p) {
+                isPrimeSegment[j - low] = false;
+            }
+        }
+
+        for (let num = low; num &lt;= high; num++) {
+            if (isPrimeSegment[num - low]) {
+                primes.push(num);
+                if (primes.length === count) return primes;
+            }
+        }
+    }
+    return primes;
+}</code></pre>
+
+            <div class="pro-con">
+                <div class="pro">
+                    <strong>Pros:</strong> Both extremely fast and memory-efficient. It's the standard approach for
+                    calculating a very large number of primes.
+                </div>
+                <div class="con">
+                    <strong>Cons:</strong> Significantly more complex to understand and implement correctly.
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <h2>Conclusion</h2>
+            <p>Optimizing code is often a journey of balancing trade-offs. We moved from a simple but slow algorithm
+                (Trial Division) to a fast but memory-hungry one (Sieve of Eratosthenes), and finally arrived at a
+                solution (Segmented Sieve) that gives us the best of both worlds: high speed and low memory usage, at
+                the cost of increased complexity.</p>
+        </footer>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2025 Code Encounters. All rights reserved.</p>
+    </footer>
+
+    <!-- Script to render the diagrams -->
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+
+        const mermaidThemeVariables = {
+            background: 'var(--mermaid-bg)',
+            lineColor: 'var(--mermaid-line)',
+            textColor: 'var(--mermaid-text)',
+            mainBkg: 'var(--mermaid-node-bg)',
+            nodeBorder: 'var(--mermaid-node-border)',
+            nodeTextColor: 'var(--mermaid-text)',
+        };
+
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'base',
+            themeVariables: mermaidThemeVariables
+        });
+    </script>
+</body>
+
+</html>
