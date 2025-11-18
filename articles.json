@@ -1,6 +1,9 @@
 {
   "files": [
     "finding-primes.html",
-    "flex-end-vs-end.html"
+    "flex-end-vs-end.html",
+    "for-of-vs-for-in.html",
+    "rendering-strategies.html",
+    "qwiks-magic.html"
   ]
 }

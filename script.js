@@ -1,6 +1,5 @@
 const articlesPath = "articles/";
 
-// A color palette for the placeholders.
 const placeholderColors = [
     { bg: "4B5563", text: "F9FAFB" },
     { bg: "1D4ED8", text: "EFF6FF" },
@@ -8,12 +7,8 @@ const placeholderColors = [
     { bg: "047857", text: "D1FAE5" },
     { bg: "7C3AED", text: "F5F3FF" },
 ];
-let colorIndex = 0; // To cycle through the colors
+let colorIndex = 0;
 
-/**
- * Fetches the list of article filenames from the manifest.
- * @returns {Promise<string[]>}
- */
 async function getArticleList() {
     try {
         const response = await fetch("articles.json");
