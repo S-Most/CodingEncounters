@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>for...of vs. for...in in JavaScript</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"
+        defer></script>
+
+    <style>
+        main {
+            background: var(--card-background);
+            margin-block: 2rem;
+            padding: clamp(1rem, 5vw, 2.5rem);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1.5rem;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        .comparison-table th {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .warning {
+            background: #ffebee;
+            border-left: 5px solid #f44336;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <h1><a href="../index.html" style="color: white; text-decoration: none;">Code Encounters</a></h1>
+    </header>
+
+    <main>
+        <h1><code>for...of</code> vs. <code>for...in</code>: What's the Difference?</h1>
+        <p class="article-date"><time datetime="2025-11-15">November 15, 2025</time></p>
+
+        <p>In JavaScript, both <code>for...of</code> and <code>for...in</code> are loops for iteration, but they serve
+            fundamentally different purposes. Understanding their distinction is key to avoiding common bugs. The core
+            difference is this:</p>
+        <ul>
+            <li><code>for...of</code> iterates over the <strong>values</strong> of iterable objects (like Arrays,
+                Strings, Maps, etc.).</li>
+            <li><code>for...in</code> iterates over the <strong>enumerable property keys</strong> of an object.</li>
+        </ul>
+
+        <section>
+            <h2>The <code>for...of</code> Loop: For Values of Iterables</h2>
+            <p>
+                Introduced in ES6, the <code>for...of</code> loop is the modern and preferred way to iterate over
+                iterable collections. It provides a simple, clean syntax to get the value of each item directly. Use it
+                for arrays, strings, maps, sets, and other iterable data structures.
+            </p>
+            <pre><code class="language-javascript">const languanges = ['JavaScript', 'C#', 'TypeScript'];
+
+for (const fruit of fruits) {
+  console.log(fruit);
+}
+// Output:
+// "JavaScript"
+// "C#"
+// "TypeScript"</code></pre>
+        </section>
+
+        <section>
+            <h2>The <code>for...in</code> Loop: For Keys of Objects</h2>
+            <p>
+                The <code>for...in</code> loop is designed to iterate over the property names (keys) of a plain object.
+                This makes it useful for inspecting the properties of an object. It's important to know that this loop
+                will also iterate over inherited enumerable properties from the object's prototype chain.
+            </p>
+            <pre><code class="language-javascript">const person = {
+  name: 'Nexy',
+  age: 30,
+  job: 'Mascot'
+};
+
+for (const key in person) {
+  console.log(`${key}: ${person[key]}`);
+}
+// Output:
+// "name: Nexy"
+// "age: 30"
+// "job: Mascot"</code></pre>
+        </section>
+
+        <section>
+            <h2>The Pitfall: Why You Shouldn't Use <code>for...in</code> on Arrays</h2>
+            <p>
+                While you can technically use a <code>for...in</code> loop on an array, it is strongly discouraged. The
+                reason is that it iterates over the index keys as strings ('0', '1', '2'), not the actual values. Worse,
+                it will also pick up any non-element properties, including those on the `Array.prototype`, which can
+                lead to unexpected behavior.
+            </p>
+            <div class="warning">
+                <strong>Warning:</strong> Avoid using <code>for...in</code> to iterate over arrays. Use
+                <code>for...of</code> or array methods like <code>forEach()</code> instead.
+            </div>
+            <pre><code class="language-javascript">const numbers = [10, 20, 30];
+Array.prototype.customProperty = () => "Do not do this!";
+
+for (const index in numbers) {
+  console.log(index, typeof index);
+}
+// Output:
+// "0" "string"
+// "1" "string"
+// "2" "string"
+// "customProperty" "string"  <-- Unwanted inherited property!
+
+delete Array.prototype.customProperty; // Cleanup
+</code></pre>
+        </section>
+
+        <section>
+            <h2>Summary Table</h2>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th><code>for...of</code></th>
+                        <th><code>for...in</code></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Iterates over...</strong></td>
+                        <td>The <strong>values</strong> of an iterable.</td>
+                        <td>The <strong>keys</strong> (property names) of an object.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Primary Use Case</strong></td>
+                        <td>Arrays, Strings, Maps, Sets.</td>
+                        <td>Plain objects.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Variable Contains</strong></td>
+                        <td>The value of the current element.</td>
+                        <td>The key (as a string) of the current property.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Good for Arrays?</strong></td>
+                        <td><strong>Yes</strong>, this is the best choice.</td>
+                        <td><strong>No</strong>, this should be avoided.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Includes Prototype Properties?</strong></td>
+                        <td>No.</td>
+                        <td>Yes, it includes inherited enumerable properties.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2025 Coding Encounters. All rights reserved.</p>
+    </footer>
+</body>
+
+</html>

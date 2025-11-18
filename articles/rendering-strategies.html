@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Rendering: When Your Strategy Needs to Change</title>
+    <link rel="stylesheet" href="../style.css">
+
+    <style>
+        .demo-area {
+            width: 100%;
+            background-color: #2a2a2a;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-block: 2.5rem;
+            color: #fff;
+            box-sizing: border-box;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            background-color: #1e1e1e;
+            padding: 1.5rem;
+            border-radius: 8px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        .control-group label {
+            margin-bottom: 0.75rem;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        input[type="range"] {
+            width: 80%;
+            max-width: 400px;
+            cursor: pointer;
+        }
+
+        .master-control button {
+            padding: 12px 24px;
+            font-size: 1.1em;
+            font-weight: bold;
+            border-radius: 5px;
+            border: none;
+            background-color: #007bff;
+            color: #fff;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .master-control button:hover {
+            background-color: #0056b3;
+        }
+
+        h2.demo-title {
+            text-align: center;
+            margin-top: 3rem;
+            border-bottom: 1px solid #444;
+            padding-bottom: 0.5rem;
+        }
+
+        .comparison-container {
+            display: flex;
+            flex-direction: row;
+            gap: 1.5rem;
+            justify-content: space-between;
+            align-items: stretch;
+        }
+
+        .demo-box {
+            border: 2px solid #555;
+            border-radius: 8px;
+            padding: 1rem;
+            background-color: #1e1e1e;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .demo-box h3 {
+            margin-top: 0;
+            text-align: center;
+            border-bottom: 1px solid #444;
+            padding-bottom: 0.75rem;
+        }
+
+        .explanation {
+            font-size: 0.85em;
+            color: #aaa;
+            padding: 0.75rem 0.25rem;
+            margin-top: auto;
+            border-top: 1px solid #444;
+        }
+
+        .explanation strong {
+            color: #ddd;
+        }
+
+        .browser-window {
+            background: #f0f0f0;
+            border-radius: 6px;
+            min-height: 180px;
+            padding: 1rem;
+            color: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            transition: background-color 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            flex-grow: 1;
+            margin-bottom: 1rem;
+        }
+
+        .browser-window h2 {
+            font-size: 2.5em;
+            margin: 0.5rem;
+            color: #1e1e1e;
+        }
+
+        .static-content {
+            font-style: italic;
+            color: #666;
+            margin-bottom: 1rem;
+            border-bottom: 1px dashed #ccc;
+            padding-bottom: 1rem;
+            width: 90%;
+            text-align: center;
+        }
+
+        .status-label {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            font-size: 0.8em;
+            font-weight: bold;
+            color: #555;
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+
+        .timeline-wrapper {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+        }
+
+        .timeline {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0%;
+            height: 100%;
+        }
+
+        #csr-timeline { background-color: #dc3545; }
+        #ssr-timeline, #qwik-timeline { background-color: #28a745; }
+        #hydration-timeline-html, #astro-timeline-html, #rsc-timeline-html { background-color: #a0c4ff; }
+        #hydration-timeline-js, #astro-timeline-js, #rsc-timeline-js { background-color: #007bff; }
+
+
+        .browser-content { text-align: center; }
+
+        .spinner {
+            border: 5px solid #dcdcdc;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1.5s linear infinite;
+            display: none;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .interactive-btn {
+            padding: 10px 15px;
+            font-size: 1.2em;
+            width: 50px;
+            border: none;
+            border-radius: 5px;
+            background-color: #999;
+            color: #fff;
+            cursor: not-allowed;
+            transition: background-color 0.3s;
+        }
+
+        .interactive-btn.enabled {
+            background-color: #28a745;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <h1><a href="../index.html">Code Encounters</a></h1>
+    </header>
+
+    <main class="container">
+        <article class="blog-post">
+            <h1>Web Rendering: When Your Strategy Needs to Change</h1>
+            <time datetime="2025-11-18">November 18, 2025</time>
+
+            <p>
+                The initial moments after a user visits your site are critical. A blank screen, even for a second, can be the difference between a new user and a lost one. This experience is governed by your site's <strong>rendering strategy</strong>—how the browser receives and displays your content.
+            </p>
+            <p>
+                The key difference between rendering methods lies in <strong>where</strong> the HTML is built: on the user's device (<code class="inline-code">Client-Side</code>) or on your server (<code class="inline-code">Server-Side</code>). As an application grows, the initial choice may become a bottleneck. An app with a large JavaScript bundle, for example, might be fast after loading but painfully slow to start with Client-Side Rendering (CSR).
+            </p>
+            <p>
+                The interactive demos below explore both traditional and modern rendering patterns. See how they perform, understand their trade-offs, and discover when it's time to evolve your approach.
+            </p>
+
+            <h2 class="demo-title">Traditional Rendering Methods</h2>
+            <p>
+                These are the foundational patterns that have powered the web for years. They represent a direct trade-off between initial load speed and client-side interactivity. As you increase the simulated JavaScript bundle size, you'll notice a significant performance penalty for methods that rely on shipping all the code to the client upfront.
+            </p>
+            <div class="demo-area">
+                <div class="controls">
+                     <div class="control-group">
+                        <label for="js-bundle-slider">Global JavaScript Bundle Size: <span id="bundle-size-label">2MB</span></label>
+                        <input type="range" id="js-bundle-slider" min="1" max="12" value="2">
+                        <small>Simulates the size of your application's code.</small>
+                    </div>
+                    <div class="master-control">
+                        <button id="run-traditional-demo-btn">► Run Traditional Demos</button>
+                    </div>
+                </div>
+
+                <div class="comparison-container">
+                    <div class="demo-box">
+                        <h3>Client-Side Rendering (CSR)</h3>
+                        <div class="browser-window">
+                             <div class="status-label" id="csr-status"></div>
+                            <div class="spinner" id="csr-spinner"></div>
+                            <div class="browser-content" id="csr-content" style="display:none;">
+                                <h2 id="csr-counter">0</h2>
+                                <button class="interactive-btn" id="csr-plus-btn">+</button>
+                            </div>
+                            <div class="timeline-wrapper"><div class="timeline" id="csr-timeline"></div></div>
+                        </div>
+                        <div class="explanation">
+                            <strong>Best For:</strong> Highly interactive web applications behind a login.<br>
+                            <strong>Trade-off:</strong> Slow initial load ("blank page") and poor for SEO.
+                        </div>
+                    </div>
+
+                    <div class="demo-box">
+                        <h3>Server-Side Rendering (SSR)</h3>
+                        <div class="browser-window">
+                            <div class="status-label" id="ssr-status"></div>
+                            <div class="browser-content" id="ssr-content" style="display:none;">
+                                <h2 id="ssr-counter">0</h2>
+                                <button class="interactive-btn" id="ssr-plus-btn">+</button>
+                            </div>
+                            <div class="timeline-wrapper"><div class="timeline" id="ssr-timeline"></div></div>
+                        </div>
+                         <div class="explanation">
+                            <strong>Best For:</strong> Content-heavy sites with basic links (blogs, etc.).<br>
+                            <strong>Trade-off:</strong> The button is visible but non-functional. Client-side updates require a full page reload.
+                        </div>
+                    </div>
+
+                    <div class="demo-box">
+                        <h3>SSR with Hydration</h3>
+                        <div class="browser-window">
+                             <div class="status-label" id="hydration-status"></div>
+                            <div class="browser-content" id="hydration-content" style="display:none;">
+                                <h2 id="hydration-counter">0</h2>
+                                <button class="interactive-btn" id="hydration-plus-btn">+</button>
+                            </div>
+                            <div class="timeline-wrapper">
+                                <div class="timeline" id="hydration-timeline-html"></div>
+                                <div class="timeline" id="hydration-timeline-js"></div>
+                            </div>
+                        </div>
+                         <div class="explanation">
+                            <strong>Best For:</strong> Complex apps that need good SEO and a fast initial view.<br>
+                            <strong>Trade-off:</strong> The "hydration gap" where the counter is visible but doesn't work yet.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h2 class="demo-title">The Future of Rendering: Solving the Hydration Problem</h2>
+            <p>
+                The biggest issue with SSR with Hydration is that the browser must download the entire JavaScript bundle and execute it from the top down just to make the page interactive, even if the user only interacts with one small part. Modern solutions attack this problem by being much smarter about how and when they ship JavaScript to the client.
+            </p>
+            <div class="demo-area">
+                <div class="controls">
+                    <div class="master-control">
+                        <button id="run-modern-demo-btn">► Run Modern Demos</button>
+                    </div>
+                </div>
+                 <div class="comparison-container">
+                    <div class="demo-box">
+                        <h3>Qwik Resumability</h3>
+                        <div class="browser-window">
+                             <div class="status-label" id="qwik-status"></div>
+                            <div class="browser-content" id="qwik-content" style="display:none;">
+                                <h2 id="qwik-counter">0</h2>
+                                <button class="interactive-btn" id="qwik-plus-btn">+</button>
+                            </div>
+                            <div class="timeline-wrapper"><div class="timeline" id="qwik-timeline"></div></div>
+                        </div>
+                        <div class="explanation">
+                            <strong>Concept:</strong> No hydration. The server serializes app state so the client can "resume" instantly.<br>
+                            <strong>Result:</strong> Near-instant load and interactivity, regardless of complexity.
+                        </div>
+                    </div>
+
+                    <div class="demo-box">
+                        <h3>Astro Islands</h3>
+                        <div class="browser-window">
+                            <div class="status-label" id="astro-status"></div>
+                            <div class="browser-content" id="astro-content" style="display:none;">
+                                <div class="static-content">Static HTML...</div>
+                                <h2 id="astro-counter">0</h2>
+                                <button class="interactive-btn" id="astro-plus-btn">+</button>
+                            </div>
+                            <div class="timeline-wrapper">
+                                <div class="timeline" id="astro-timeline-html"></div>
+                                <div class="timeline" id="astro-timeline-js"></div>
+                            </div>
+                        </div>
+                         <div class="explanation">
+                            <strong>Concept:</strong> Most of the site is static HTML. Only interactive components ("islands") load JS.<br>
+                            <strong>Result:</strong> Fast load time, with tiny JS bundles hydrating in isolation.
+                        </div>
+                    </div>
+
+                    <div class="demo-box">
+                        <h3>React Server Components</h3>
+                        <div class="browser-window">
+                             <div class="status-label" id="rsc-status"></div>
+                            <div class="browser-content" id="rsc-content" style="display:none;">
+                                <div class="static-content">Server Component...</div>
+                                <h2 id="rsc-counter">0</h2>
+                                <button class="interactive-btn" id="rsc-plus-btn">+</button>
+                            </div>
+                            <div class="timeline-wrapper">
+                                <div class="timeline" id="rsc-timeline-html"></div>
+                                <div class="timeline" id="rsc-timeline-js"></div>
+                            </div>
+                        </div>
+                         <div class="explanation">
+                            <strong>Concept:</strong> Components run on the server (no JS) or client. Only client components hydrate.<br>
+                             <strong>Result:</strong> Reduced client JS bundle size and a faster interactive time.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h2>Making the Switch</h2>
+            <p>
+                Choosing a rendering strategy is about matching your application's needs with the right trade-offs. The demos show a clear evolutionary path:
+            </p>
+            <ul>
+                <li><strong>Switch from CSR to an SSR-based approach</strong> when your JavaScript bundle grows too large, leading to poor initial load times, or when Search Engine Optimization (SEO) becomes a priority.</li>
+                <li><strong>Optimize SSR with Hydration with modern tools</strong> (like Astro or RSC) when your Time to Interactive is suffering. Instead of one giant bundle, you can break your app into smaller, independent pieces.</li>
+                <li><strong>Consider a resumable framework</strong> (like Qwik) for new projects if your primary goal is the fastest possible interactivity, effectively skipping the hydration problem entirely.</li>
+            </ul>
+            <p>
+                By understanding these patterns, you can make informed decisions to build faster, more efficient, and more enjoyable experiences on the web.
+            </p>
+        </article>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 Code Encounters. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // --- Elements and State ---
+        const traditionalDemoBtn = document.getElementById('run-traditional-demo-btn');
+        const modernDemoBtn = document.getElementById('run-modern-demo-btn');
+        const jsBundleSlider = document.getElementById('js-bundle-slider');
+        const bundleSizeLabel = document.getElementById('bundle-size-label');
+
+        const elements = {
+            csr: { status: document.getElementById('csr-status'), spinner: document.getElementById('csr-spinner'), content: document.getElementById('csr-content'), counter: document.getElementById('csr-counter'), btn: document.getElementById('csr-plus-btn'), timeline: document.getElementById('csr-timeline') },
+            ssr: { status: document.getElementById('ssr-status'), content: document.getElementById('ssr-content'), counter: document.getElementById('ssr-counter'), btn: document.getElementById('ssr-plus-btn'), timeline: document.getElementById('ssr-timeline') },
+            hydration: { status: document.getElementById('hydration-status'), content: document.getElementById('hydration-content'), counter: document.getElementById('hydration-counter'), btn: document.getElementById('hydration-plus-btn'), timelineHTML: document.getElementById('hydration-timeline-html'), timelineJS: document.getElementById('hydration-timeline-js') },
+            qwik: { status: document.getElementById('qwik-status'), content: document.getElementById('qwik-content'), counter: document.getElementById('qwik-counter'), btn: document.getElementById('qwik-plus-btn'), timeline: document.getElementById('qwik-timeline') },
+            astro: { status: document.getElementById('astro-status'), content: document.getElementById('astro-content'), counter: document.getElementById('astro-counter'), btn: document.getElementById('astro-plus-btn'), timelineHTML: document.getElementById('astro-timeline-html'), timelineJS: document.getElementById('astro-timeline-js') },
+            rsc: { status: document.getElementById('rsc-status'), content: document.getElementById('rsc-content'), counter: document.getElementById('rsc-counter'), btn: document.getElementById('rsc-plus-btn'), timelineHTML: document.getElementById('rsc-timeline-html'), timelineJS: document.getElementById('rsc-timeline-js') }
+        };
+
+        let animationTimers = [];
+
+        function setupCounter(counterEl, btnEl) {
+            let count = 0;
+            btnEl.addEventListener('click', () => {
+                count++;
+                counterEl.textContent = count;
+            });
+        }
+
+        function updateSliderLabel() {
+            bundleSizeLabel.textContent = `${jsBundleSlider.value}MB`;
+        }
+
+        function resetAllDemos() {
+            animationTimers.forEach(timer => clearTimeout(timer));
+            animationTimers = [];
+
+            Object.values(elements).forEach(group => {
+                if(group.spinner) group.spinner.style.display = 'none';
+                if(group.content) group.content.style.display = 'none';
+                if(group.btn) group.btn.classList.remove('enabled');
+                if(group.counter) group.counter.textContent = '0';
+                if(group.status) group.status.textContent = 'Waiting...';
+
+                ['timeline', 'timelineHTML', 'timelineJS'].forEach(tKey => {
+                    if (group[tKey]) {
+                        group[tKey].style.transition = 'none';
+                        group[tKey].style.width = '0%';
+                    }
+                });
+            });
+
+             Object.values(elements).forEach(group => {
+                if (group.btn) {
+                    const oldBtn = group.btn;
+                    const newBtn = oldBtn.cloneNode(true);
+                    oldBtn.parentNode.replaceChild(newBtn, oldBtn);
+                    group.btn = newBtn;
+                }
+            });
+        }
+
+        function runTraditionalDemos() {
+            resetAllDemos();
+            setTimeout(() => {
+                const bundleSize = parseInt(jsBundleSlider.value, 10);
+                const baseNetworkTime = 300;
+                const globalJsDownloadTime = bundleSize * 500;
+                const totalCsrTime = baseNetworkTime + globalJsDownloadTime;
+                const totalHydrationTime = baseNetworkTime + globalJsDownloadTime;
+
+                // CSR
+                elements.csr.timeline.style.transition = `width ${totalCsrTime / 1000}s linear`;
+                elements.csr.status.textContent = 'Loading...';
+                animationTimers.push(setTimeout(() => { elements.csr.spinner.style.display = 'block'; elements.csr.timeline.style.width = '100%'; }, baseNetworkTime));
+                animationTimers.push(setTimeout(() => { elements.csr.spinner.style.display = 'none'; elements.csr.content.style.display = 'block'; elements.csr.btn.classList.add('enabled'); elements.csr.status.textContent = 'Interactive'; setupCounter(elements.csr.counter, elements.csr.btn); }, totalCsrTime));
+
+                // SSR
+                elements.ssr.timeline.style.transition = `width ${baseNetworkTime / 1000}s linear`;
+                elements.ssr.timeline.style.width = '100%';
+                animationTimers.push(setTimeout(() => { elements.ssr.content.style.display = 'block'; elements.ssr.status.textContent = 'Visible (Not Interactive)'; }, baseNetworkTime));
+
+                // SSR with Hydration
+                elements.hydration.timelineHTML.style.transition = `width ${baseNetworkTime / 1000}s linear`;
+                elements.hydration.timelineJS.style.transition = `width ${globalJsDownloadTime / 1000}s linear ${baseNetworkTime / 1000}s`;
+                elements.hydration.timelineHTML.style.width = '100%';
+                elements.hydration.timelineJS.style.width = '0%';
+                animationTimers.push(setTimeout(() => { elements.hydration.content.style.display = 'block'; elements.hydration.status.textContent = 'Visible (Hydrating...)'; elements.hydration.timelineJS.style.width = '100%'; }, baseNetworkTime));
+                animationTimers.push(setTimeout(() => { elements.hydration.btn.classList.add('enabled'); elements.hydration.status.textContent = 'Interactive'; setupCounter(elements.hydration.counter, elements.hydration.btn); }, totalHydrationTime));
+            }, 50);
+        }
+
+        function runModernDemos() {
+            resetAllDemos();
+            setTimeout(() => {
+                const baseNetworkTime = 300;
+                const isolatedComponentJsTime = 400;
+                const totalIslandTime = baseNetworkTime + isolatedComponentJsTime;
+
+                // Qwik
+                elements.qwik.timeline.style.transition = `width ${baseNetworkTime / 1000}s linear`;
+                elements.qwik.timeline.style.width = '100%';
+                animationTimers.push(setTimeout(() => {
+                    elements.qwik.content.style.display = 'block';
+                    elements.qwik.btn.classList.add('enabled');
+                    elements.qwik.status.textContent = 'Interactive (Resumed)';
+                    setupCounter(elements.qwik.counter, elements.qwik.btn);
+                }, baseNetworkTime + 50));
+
+                // Astro & RSC
+                [elements.astro, elements.rsc].forEach(el => {
+                    el.timelineHTML.style.transition = `width ${baseNetworkTime / 1000}s linear`;
+                    el.timelineJS.style.transition = `width ${isolatedComponentJsTime / 1000}s linear ${baseNetworkTime / 1000}s`;
+                    el.timelineHTML.style.width = '100%';
+                    el.timelineJS.style.width = '0%';
+                    animationTimers.push(setTimeout(() => {
+                        el.content.style.display = 'block';
+                        el.status.textContent = 'Visible (Island Hydrating)';
+                        el.timelineJS.style.width = '100%';
+                    }, baseNetworkTime));
+                    animationTimers.push(setTimeout(() => {
+                        el.btn.classList.add('enabled');
+                        el.status.textContent = 'Interactive';
+                        setupCounter(el.counter, el.btn);
+                    }, totalIslandTime));
+                });
+            }, 50);
+        }
+
+        jsBundleSlider.addEventListener('input', updateSliderLabel);
+        traditionalDemoBtn.addEventListener('click', runTraditionalDemos);
+        modernDemoBtn.addEventListener('click', runModernDemos);
+
+        resetAllDemos();
+    </script>
+</body>
+</html>
