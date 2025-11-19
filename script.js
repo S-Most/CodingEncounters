@@ -11,7 +11,7 @@ let colorIndex = 0;
 
 async function getArticleList() {
     try {
-        const response = await fetch("articles.json");
+        const response = await fetch("articles.json?cache=" + Date.now());
         if (!response.ok) throw new Error("Could not load article list.");
         const data = await response.json();
         return data.files || [];

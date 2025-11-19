@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Async/Await vs. Promises vs. Callbacks</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js" defer></script>
+    <style>
+        main {
+            background: var(--card-background);
+            margin-block: 2rem;
+            padding: clamp(1rem, 5vw, 2.5rem);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1.5rem;
+        }
+        .comparison-table th, .comparison-table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        .comparison-table th {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+        .comparison-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1><a href="../index.html" style="color: white; text-decoration: none;">Code Encounters</a></h1>
+    </header>
+    <main>
+        <h1>Async/Await vs. Promises vs. Callbacks: Evolution of Asynchronous JavaScript</h1>
+        <p class="article-date"><time datetime="2025-11-19">November 19, 2025</time></p>
+        <p>Asynchronous programming is fundamental to JavaScript. Over the years, JavaScript has evolved through three major patterns: Callbacks, Promises, and Async/Await.</p>
+        <section>
+            <h2>Era 1: Callbacks (1995-2015)</h2>
+            <p>Callbacks were the original way to handle async operations.</p>
+            <pre><code class="language-javascript">fetchUser(1, (user) => {
+  fetchPosts(user.id, (posts) => {
+    // Callback hell!
+  });
+});</code></pre>
+            <p><strong>Problem:</strong> Deeply nested code ("Callback Hell")</p>
+        </section>
+        <section>
+            <h2>Era 2: Promises (2015-Present)</h2>
+            <p>Promises solved callback hell with chainable syntax.</p>
+            <pre><code class="language-javascript">fetchUser(1)
+  .then(user => fetchPosts(user.id))
+  .then(posts => console.log(posts))
+  .catch(error => console.error(error));</code></pre>
+            <p><strong>Advantage:</strong> Flat, chainable structure with unified error handling</p>
+        </section>
+        <section>
+            <h2>Era 3: Async/Await (2017-Present)</h2>
+            <p>Async/Await makes asynchronous code look synchronous.</p>
+            <pre><code class="language-javascript">async function getData() {
+  try {
+    const user = await fetchUser(1);
+    const posts = await fetchPosts(user.id);
+    console.log(posts);
+  } catch (error) {
+    console.error(error);
+  }
+}</code></pre>
+            <p><strong>Advantage:</strong> Most readable and maintainable</p>
+        </section>
+        <section>
+            <h2>Comparison Table</h2>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>Callbacks</th>
+                        <th>Promises</th>
+                        <th>Async/Await</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Readability</strong></td>
+                        <td>Poor (nesting)</td>
+                        <td>Good (chaining)</td>
+                        <td>Excellent (linear)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Error Handling</strong></td>
+                        <td>Manual per callback</td>
+                        <td>.catch()</td>
+                        <td>try/catch</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Browser Support</strong></td>
+                        <td>Universal</td>
+                        <td>Modern</td>
+                        <td>Modern</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+        <section>
+            <h2>Conclusion</h2>
+            <p>Use <strong>Async/Await</strong> for new code. It's built on Promises with better syntax. Understanding all three patterns helps you work with any JavaScript codebase.</p>
+        </section>
+    </main>
+    <footer class="footer">
+        <p>&copy; 2025 Coding Encounters. All rights reserved.</p>
+    </footer>
+</body>
+</html>

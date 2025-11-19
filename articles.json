@@ -4,6 +4,10 @@
     "flex-end-vs-end.html",
     "for-of-vs-for-in.html",
     "rendering-strategies.html",
-    "qwiks-magic.html"
+    "qwiks-magic.html",
+    "json-vs-toml.html",
+    "flexbox-vs-grid.html",
+    "es-modules-vs-commonjs.html",
+    "async-await-promises-callbacks.html"
   ]
 }

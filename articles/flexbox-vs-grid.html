@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS Flexbox vs. CSS Grid</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js" defer></script>
+    <style>
+        main {
+            background: var(--card-background);
+            margin-block: 2rem;
+            padding: clamp(1rem, 5vw, 2.5rem);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1.5rem;
+        }
+        .comparison-table th, .comparison-table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        .comparison-table th {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+        .comparison-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1><a href="../index.html" style="color: white; text-decoration: none;">Code Encounters</a></h1>
+    </header>
+    <main>
+        <h1>CSS Flexbox vs. CSS Grid: Choosing the Right Layout System</h1>
+        <p class="article-date"><time datetime="2025-11-19">November 19, 2025</time></p>
+        <p>CSS Flexbox and CSS Grid are two powerful layout systems in modern web development. While they may seem similar, they're designed for different purposes and excel in different scenarios.</p>
+        <section>
+            <h2>The Fundamental Difference</h2>
+            <p>The key distinction lies in their dimensionality:</p>
+            <ul>
+                <li><strong>Flexbox</strong> is a <strong>one-dimensional</strong> layout system for rows or columns</li>
+                <li><strong>Grid</strong> is a <strong>two-dimensional</strong> layout system for rows and columns simultaneously</li>
+            </ul>
+        </section>
+        <section>
+            <h2>When to Use Flexbox</h2>
+            <pre><code class="language-css">.container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}</code></pre>
+            <p>Best for: Navigation bars, card layouts, form elements, centering content</p>
+        </section>
+        <section>
+            <h2>When to Use Grid</h2>
+            <pre><code class="language-css">.container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}</code></pre>
+            <p>Best for: Page layouts, image galleries, dashboards, complex two-dimensional structures</p>
+        </section>
+        <section>
+            <h2>Comparison Table</h2>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>Flexbox</th>
+                        <th>Grid</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Dimensions</strong></td>
+                        <td>One-dimensional</td>
+                        <td>Two-dimensional</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Best For</strong></td>
+                        <td>Components, small layouts</td>
+                        <td>Page layouts, complex grids</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Browser Support</strong></td>
+                        <td>Excellent</td>
+                        <td>Excellent (modern browsers)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+        <section>
+            <h2>Conclusion</h2>
+            <p>Both Flexbox and Grid are complementary tools. Use Grid for overall page structure and Flexbox for component-level layouts. This combination gives you maximum flexibility and control.</p>
+        </section>
+    </main>
+    <footer class="footer">
+        <p>&copy; 2025 Coding Encounters. All rights reserved.</p>
+    </footer>
+</body>
+</html>

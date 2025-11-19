@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON vs. TOML: Choosing the Right Configuration Format</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"
+        defer></script>
+
+    <style>
+        main {
+            background: var(--card-background);
+            margin-block: 2rem;
+            padding: clamp(1rem, 5vw, 2.5rem);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1.5rem;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        .comparison-table th {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 5px solid #2196f3;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 4px;
+        }
+
+        .tip-box {
+            background: #f1f8e9;
+            border-left: 5px solid #8bc34a;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 4px;
+        }
+
+        .code-comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .code-comparison {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .code-block-label {
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <h1><a href="../index.html" style="color: white; text-decoration: none;">Code Encounters</a></h1>
+    </header>
+
+    <main>
+        <h1>JSON vs. TOML: Choosing the Right Configuration Format</h1>
+        <p class="article-date"><time datetime="2025-11-19">November 19, 2025</time></p>
+
+        <p>When it comes to configuration files and data serialization, JSON and TOML are two popular formats that
+            developers encounter regularly. While JSON (JavaScript Object Notation) has been the industry standard for
+            years, TOML (Tom's Obvious, Minimal Language) has gained traction as a more human-friendly alternative.
+            Let's explore their differences and when to use each.</p>
+
+        <section>
+            <h2>What is JSON?</h2>
+            <p>
+                JSON is a lightweight data-interchange format that's easy for both humans and machines to read and
+                write. Originally derived from JavaScript, it has become language-agnostic and is now the de facto
+                standard for APIs, configuration files, and data storage. JSON uses a simple syntax with key-value
+                pairs, arrays, and nested objects.
+            </p>
+            <pre><code class="language-json">{
+  "name": "Code Encounters",
+  "version": "1.0.0",
+  "dependencies": {
+    "express": "^4.18.0",
+    "mongoose": "^7.0.0"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "test": "jest"
+  },
+  "keywords": ["web", "blog", "coding"]
+}</code></pre>
+        </section>
+
+        <section>
+            <h2>What is TOML?</h2>
+            <p>
+                TOML was created by Tom Preston-Werner (co-founder of GitHub) with the goal of being a minimal
+                configuration file format that's easy to read due to obvious semantics. TOML maps unambiguously to a
+                hash table and is designed to be more human-friendly than JSON, especially for configuration files. It's
+                used by popular tools like Cargo (Rust's package manager) and various Python projects.
+            </p>
+            <pre><code class="language-toml">name = "Code Encounters"
+version = "1.0.0"
+keywords = ["web", "blog", "coding"]
+
+[dependencies]
+express = "^4.18.0"
+mongoose = "^7.0.0"
+
+[scripts]
+start = "node index.js"
+test = "jest"</code></pre>
+        </section>
+
+        <section>
+            <h2>Key Differences</h2>
+
+            <h3>1. Readability and Human-Friendliness</h3>
+            <p>
+                TOML was specifically designed to be more readable than JSON. It eliminates the need for excessive
+                brackets, quotes on keys, and trailing commas. This makes TOML particularly well-suited for
+                configuration files that humans need to edit frequently.
+            </p>
+
+            <div class="code-comparison">
+                <div>
+                    <div class="code-block-label">JSON</div>
+                    <pre><code class="language-json">{
+  "database": {
+    "server": "192.168.1.1",
+    "ports": [8001, 8002, 8003],
+    "connection_max": 5000,
+    "enabled": true
+  }
+}</code></pre>
+                </div>
+                <div>
+                    <div class="code-block-label">TOML</div>
+                    <pre><code class="language-toml">[database]
+server = "192.168.1.1"
+ports = [8001, 8002, 8003]
+connection_max = 5000
+enabled = true</code></pre>
+                </div>
+            </div>
+
+            <h3>2. Comments Support</h3>
+            <p>
+                One of JSON's biggest limitations is the lack of native comment support. While some parsers allow
+                comments as an extension, standard JSON does not support them. TOML, on the other hand, has built-in
+                support for comments using the <code>#</code> symbol.
+            </p>
+
+            <pre><code class="language-toml"># This is a comment in TOML
+[server]
+host = "localhost"  # Inline comments are also supported
+port = 3000</code></pre>
+
+            <div class="info-box">
+                <strong>Note:</strong> The lack of comments in JSON is intentional. Douglas Crockford, JSON's creator,
+                removed comments to prevent people from using them to include parsing directives, which would have
+                broken interoperability.
+            </div>
+
+            <h3>3. Data Types</h3>
+            <p>
+                Both formats support common data types, but TOML offers more specific types that can be useful for
+                configuration files:
+            </p>
+
+            <ul>
+                <li><strong>JSON:</strong> strings, numbers, booleans, null, arrays, objects</li>
+                <li><strong>TOML:</strong> strings, integers, floats, booleans, dates/times, arrays, tables (objects)
+                </li>
+            </ul>
+
+            <pre><code class="language-toml"># TOML has native date/time support
+published_date = 2025-11-19T08:17:19+01:00
+
+# TOML distinguishes between integers and floats
+max_connections = 100
+timeout = 30.5
+
+# TOML supports multi-line strings
+description = """
+This is a multi-line string.
+It preserves line breaks and formatting.
+Very useful for long descriptions."""</code></pre>
+
+            <h3>4. Nested Structures</h3>
+            <p>
+                JSON handles nested structures naturally with its bracket notation. TOML uses table headers and
+                dot-notation, which can be more verbose but also more explicit and easier to navigate in large files.
+            </p>
+
+            <div class="code-comparison">
+                <div>
+                    <div class="code-block-label">JSON</div>
+                    <pre><code class="language-json">{
+  "servers": {
+    "alpha": {
+      "ip": "10.0.0.1",
+      "role": "frontend"
+    },
+    "beta": {
+      "ip": "10.0.0.2",
+      "role": "backend"
+    }
+  }
+}</code></pre>
+                </div>
+                <div>
+                    <div class="code-block-label">TOML</div>
+                    <pre><code class="language-toml">[servers.alpha]
+ip = "10.0.0.1"
+role = "frontend"
+
+[servers.beta]
+ip = "10.0.0.2"
+role = "backend"</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>When to Use JSON</h2>
+            <ul>
+                <li><strong>APIs and Data Exchange:</strong> JSON is the standard for REST APIs and data transmission
+                    between services</li>
+                <li><strong>Web Applications:</strong> Native JavaScript support makes JSON ideal for web development
+                </li>
+                <li><strong>Universal Compatibility:</strong> Nearly every programming language has robust JSON parsing
+                    libraries</li>
+                <li><strong>Nested Data Structures:</strong> JSON excels at representing complex, deeply nested data
+                </li>
+                <li><strong>Machine-to-Machine Communication:</strong> When humans don't need to edit the data directly
+                </li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>When to Use TOML</h2>
+            <ul>
+                <li><strong>Configuration Files:</strong> TOML's readability makes it perfect for app configuration</li>
+                <li><strong>Human-Edited Files:</strong> When developers or users need to frequently modify settings
+                </li>
+                <li><strong>Documentation:</strong> Comments support allows inline documentation of configuration
+                    options</li>
+                <li><strong>Type Safety:</strong> TOML's explicit types (dates, integers vs floats) can prevent
+                    configuration errors</li>
+                <li><strong>Flat Hierarchies:</strong> TOML works best with moderately nested structures</li>
+            </ul>
+
+            <div class="tip-box">
+                <strong>Tip:</strong> Popular projects using TOML include Rust's Cargo, Python's Poetry, and Hugo
+                static site generator. If you're building developer tools or applications with user-facing
+                configuration, TOML is worth considering.
+            </div>
+        </section>
+
+        <section>
+            <h2>Performance Considerations</h2>
+            <p>
+                JSON parsers are generally faster and more optimized due to JSON's widespread adoption and maturity.
+                Most programming languages have highly optimized JSON parsers, often written in C or other low-level
+                languages. TOML parsers, while improving, are typically slower and less optimized. However, for
+                configuration files that are read once at startup, this performance difference is usually negligible.
+            </p>
+        </section>
+
+        <section>
+            <h2>Comparison Summary</h2>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>JSON</th>
+                        <th>TOML</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Primary Use Case</strong></td>
+                        <td>Data interchange, APIs</td>
+                        <td>Configuration files</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Readability</strong></td>
+                        <td>Good for simple structures</td>
+                        <td>Excellent, especially for configs</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Comments</strong></td>
+                        <td>Not supported</td>
+                        <td>Fully supported</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Date/Time Types</strong></td>
+                        <td>No (use strings)</td>
+                        <td>Native support</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Multi-line Strings</strong></td>
+                        <td>Requires escape characters</td>
+                        <td>Native support with """</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Language Support</strong></td>
+                        <td>Universal</td>
+                        <td>Growing, but less common</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Parsing Speed</strong></td>
+                        <td>Very fast</td>
+                        <td>Slower, but adequate</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Deep Nesting</strong></td>
+                        <td>Excellent</td>
+                        <td>Can become verbose</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h2>Conclusion</h2>
+            <p>
+                Both JSON and TOML have their place in modern development. JSON remains the king of data interchange and
+                APIs due to its universal support and performance. TOML shines as a configuration format where
+                human-readability and editability are priorities. Many modern projects use both: JSON for data exchange
+                and TOML for configuration files.
+            </p>
+            <p>
+                The choice ultimately depends on your use case. If you're building an API or need to exchange data
+                between systems, stick with JSON. If you're creating configuration files that humans will edit, consider
+                TOML for its superior readability and comment support.
+            </p>
+        </section>
+
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2025 Coding Encounters. All rights reserved.</p>
+    </footer>
+</body>
+
+</html>

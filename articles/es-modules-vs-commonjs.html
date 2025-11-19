@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ES Modules vs. CommonJS: Understanding JavaScript Module Systems</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"
+        defer></script>
+
+    <style>
+        main {
+            background: var(--card-background);
+            margin-block: 2rem;
+            padding: clamp(1rem, 5vw, 2.5rem);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1.5rem;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        .comparison-table th {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .code-comparison-wrapper {
+            background: var(--secondary-color);
+            margin: 2rem 0;
+            padding: 2.5rem 1rem;
+            width: 100vw;
+            position: relative;
+            left: 50%;
+            right: 50%;
+            margin-left: -50vw;
+            margin-right: -50vw;
+        }
+
+        .code-comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .code-comparison > div {
+            background: white;
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+
+        @media (max-width: 900px) {
+            .code-comparison {
+                gap: 1.5rem;
+                max-width: 700px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .code-comparison-wrapper {
+                padding: 2rem 1rem;
+            }
+
+            .code-comparison {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+                padding: 0 0.5rem;
+            }
+        }
+
+        .code-block-label {
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .warning-box {
+            background: #ffebee;
+            border-left: 5px solid #f44336;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 4px;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 5px solid #2196f3;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 4px;
+        }
+
+        .tip-box {
+            background: #f1f8e9;
+            border-left: 5px solid #8bc34a;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 4px;
+        }
+
+        .timeline {
+            border-left: 3px solid var(--primary-color);
+            padding-left: 2rem;
+            margin: 2rem 0;
+        }
+
+        .timeline-item {
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -2.6rem;
+            top: 0.5rem;
+            width: 1rem;
+            height: 1rem;
+            background: var(--primary-color);
+            border-radius: 50%;
+        }
+
+        .timeline-year {
+            font-weight: bold;
+            color: var(--primary-color);
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <h1><a href="../index.html" style="color: white; text-decoration: none;">Code Encounters</a></h1>
+    </header>
+
+    <main>
+        <h1>ES Modules vs. CommonJS: Understanding JavaScript Module Systems</h1>
+        <p class="article-date"><time datetime="2025-11-19">November 19, 2025</time></p>
+
+        <p>JavaScript has evolved significantly over the years, and one of the most important evolutions has been in
+            how we organize and share code. Two module systems dominate the JavaScript ecosystem: CommonJS and ES
+            Modules (ESM). Understanding the differences between them is crucial for modern JavaScript development,
+            especially as the ecosystem transitions toward ES Modules as the standard.</p>
+
+        <section>
+            <h2>A Brief History</h2>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-year">2009</div>
+                    <p><strong>CommonJS</strong> was created for Node.js to enable server-side JavaScript with a module
+                        system. It introduced <code>require()</code> and <code>module.exports</code>.</p>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-year">2015</div>
+                    <p><strong>ES6/ES2015</strong> introduced native JavaScript modules with <code>import</code> and
+                        <code>export</code> syntax as part of the ECMAScript specification.</p>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-year">2017-2020</div>
+                    <p>Browsers began supporting ES Modules natively. Node.js started adding ESM support, initially
+                        experimental.</p>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-year">2020-Present</div>
+                    <p>Node.js fully supports ES Modules. The ecosystem is gradually transitioning from CommonJS to ESM,
+                        though both coexist.</p>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>CommonJS: The Node.js Standard</h2>
+            <p>
+                CommonJS was designed specifically for server-side JavaScript. It uses synchronous loading, which works
+                well in Node.js where modules are loaded from the local filesystem. The syntax is simple and has been
+                the backbone of the Node.js ecosystem for over a decade.
+            </p>
+
+            <h3>Basic CommonJS Syntax</h3>
+            <pre><code class="language-javascript">// math.js - Exporting
+function add(a, b) {
+  return a + b;
+}
+
+function subtract(a, b) {
+  return a - b;
+}
+
+// Export multiple functions
+module.exports = {
+  add,
+  subtract
+};
+
+// Or export a single function
+module.exports = add;</code></pre>
+
+            <pre><code class="language-javascript">// app.js - Importing
+const math = require('./math');
+console.log(math.add(5, 3)); // 8
+
+// Destructuring import
+const { add, subtract } = require('./math');
+console.log(subtract(10, 4)); // 6
+
+// Import built-in or npm modules
+const fs = require('fs');
+const express = require('express');</code></pre>
+
+            <h3>Key Characteristics of CommonJS</h3>
+            <ul>
+                <li><strong>Synchronous loading:</strong> Modules are loaded and executed immediately</li>
+                <li><strong>Dynamic imports:</strong> You can use <code>require()</code> anywhere in your code,
+                    including inside conditionals</li>
+                <li><strong>Runtime evaluation:</strong> Module structure is determined at runtime</li>
+                <li><strong>Copies values:</strong> Exports are copied, not referenced (except objects)</li>
+                <li><strong>File extension:</strong> Uses <code>.js</code> files by default in Node.js</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>ES Modules: The JavaScript Standard</h2>
+            <p>
+                ES Modules (ESM) are the official standard for JavaScript modules, defined in the ECMAScript
+                specification. They were designed to work in both browsers and Node.js, with asynchronous loading
+                capabilities that make them ideal for web environments.
+            </p>
+
+            <h3>Basic ES Modules Syntax</h3>
+            <pre><code class="language-javascript">// math.js - Exporting
+export function add(a, b) {
+  return a + b;
+}
+
+export function subtract(a, b) {
+  return a - b;
+}
+
+// Named exports
+export const PI = 3.14159;
+
+// Default export
+export default function multiply(a, b) {
+  return a * b;
+}</code></pre>
+
+            <pre><code class="language-javascript">// app.js - Importing
+import multiply, { add, subtract, PI } from './math.js';
+
+console.log(add(5, 3)); // 8
+console.log(multiply(4, 2)); // 8
+console.log(PI); // 3.14159
+
+// Import everything as a namespace
+import * as math from './math.js';
+console.log(math.add(5, 3)); // 8
+
+// Import for side effects only
+import './setup.js';</code></pre>
+
+            <h3>Key Characteristics of ES Modules</h3>
+            <ul>
+                <li><strong>Asynchronous loading:</strong> Modules can be loaded asynchronously (important for
+                    browsers)</li>
+                <li><strong>Static structure:</strong> Imports and exports must be at the top level</li>
+                <li><strong>Compile-time analysis:</strong> Module structure is determined before execution</li>
+                <li><strong>Live bindings:</strong> Imports are live references to exported values</li>
+                <li><strong>File extension:</strong> Uses <code>.mjs</code> or <code>.js</code> with
+                    <code>"type": "module"</code> in package.json</li>
+                <li><strong>Strict mode:</strong> Always runs in strict mode by default</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Side-by-Side Comparison</h2>
+
+            <div class="code-comparison-wrapper">
+                <div class="code-comparison">
+                    <div>
+                        <div class="code-block-label">CommonJS</div>
+                        <pre><code class="language-javascript">// Exporting
+const config = {
+  apiUrl: 'https://api.example.com'
+};
+
+module.exports = config;
+
+// or
+exports.config = config;
+exports.version = '1.0.0';</code></pre>
+                    </div>
+                    <div>
+                        <div class="code-block-label">ES Modules</div>
+                        <pre><code class="language-javascript">// Exporting
+const config = {
+  apiUrl: 'https://api.example.com'
+};
+
+export default config;
+
+// or
+export { config };
+export const version = '1.0.0';</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="code-comparison-wrapper">
+                <div class="code-comparison">
+                    <div>
+                        <div class="code-block-label">CommonJS</div>
+                        <pre><code class="language-javascript">// Importing
+const config = require('./config');
+
+// Conditional import (allowed)
+if (process.env.NODE_ENV === 'dev') {
+  const devTools = require('./devTools');
+}</code></pre>
+                    </div>
+                    <div>
+                        <div class="code-block-label">ES Modules</div>
+                        <pre><code class="language-javascript">// Importing
+import config from './config.js';
+
+// Dynamic import (async)
+if (process.env.NODE_ENV === 'dev') {
+  const devTools = await import('./devTools.js');
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>Key Differences Explained</h2>
+
+            <h3>1. Loading Mechanism</h3>
+            <p>
+                <strong>CommonJS</strong> loads modules synchronously. When you call <code>require()</code>, the entire
+                module is loaded and executed immediately before moving to the next line. This works well in Node.js
+                where files are local.
+            </p>
+            <p>
+                <strong>ES Modules</strong> support asynchronous loading. The browser can download multiple modules in
+                parallel and execute them when ready. This is crucial for web performance.
+            </p>
+
+            <div class="info-box">
+                <strong>Why it matters:</strong> In browsers, synchronous loading would block the page while waiting for
+                each module. ES Modules' async nature allows for better performance and user experience.
+            </div>
+
+            <h3>2. Static vs. Dynamic Structure</h3>
+            <pre><code class="language-javascript">// CommonJS - Dynamic (allowed)
+const moduleName = condition ? 'moduleA' : 'moduleB';
+const myModule = require(moduleName);
+
+if (someCondition) {
+  const optional = require('./optional');
+}</code></pre>
+
+            <pre><code class="language-javascript">// ES Modules - Static (NOT allowed at top level)
+// ❌ This won't work:
+// const myModule = import(condition ? 'moduleA' : 'moduleB');
+
+// ✅ Use dynamic import instead:
+const myModule = await import(condition ? './moduleA.js' : './moduleB.js');
+
+// ❌ Conditional imports at top level not allowed:
+// if (someCondition) {
+//   import optional from './optional.js';
+// }</code></pre>
+
+            <div class="tip-box">
+                <strong>Advantage of static structure:</strong> Tools can analyze ES Modules at build time for tree
+                shaking (removing unused code), better error detection, and optimization.
+            </div>
+
+            <h3>3. Live Bindings vs. Copies</h3>
+            <p>This is one of the most important differences:</p>
+
+            <div class="code-comparison-wrapper">
+                <div class="code-comparison">
+                    <div>
+                        <div class="code-block-label">CommonJS (Copies)</div>
+                        <pre><code class="language-javascript">// counter.js
+let count = 0;
+module.exports = {
+  count,
+  increment() {
+    count++;
+  }
+};
+
+// app.js
+const counter = require('./counter');
+console.log(counter.count); // 0
+counter.increment();
+console.log(counter.count); // Still 0! (copy)</code></pre>
+                    </div>
+                    <div>
+                        <div class="code-block-label">ES Modules (Live Bindings)</div>
+                        <pre><code class="language-javascript">// counter.js
+export let count = 0;
+export function increment() {
+  count++;
+}
+
+// app.js
+import { count, increment } from './counter.js';
+console.log(count); // 0
+increment();
+console.log(count); // 1 (live binding!)</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <h3>4. Browser Support</h3>
+            <p>
+                <strong>CommonJS</strong> does not work in browsers natively. You need a bundler like Webpack or
+                Browserify to convert CommonJS to browser-compatible code.
+            </p>
+            <p>
+                <strong>ES Modules</strong> work natively in all modern browsers using
+                <code>&lt;script type="module"&gt;</code>.
+            </p>
+
+            <pre><code class="language-html">&lt;!-- ES Modules in the browser --&gt;
+&lt;script type="module"&gt;
+  import { greet } from './greet.js';
+  greet('World');
+&lt;/script&gt;
+
+&lt;!-- Or external module --&gt;
+&lt;script type="module" src="./app.js"&gt;&lt;/script&gt;</code></pre>
+        </section>
+
+        <section>
+            <h2>Using ES Modules in Node.js</h2>
+            <p>
+                Node.js now fully supports ES Modules, but you need to opt-in. There are two ways:
+            </p>
+
+            <h3>Method 1: Use .mjs Extension</h3>
+            <pre><code class="language-javascript">// math.mjs
+export function add(a, b) {
+  return a + b;
+}
+
+// app.mjs
+import { add } from './math.mjs';
+console.log(add(2, 3));</code></pre>
+
+            <h3>Method 2: Add "type": "module" to package.json</h3>
+            <pre><code class="language-json">{
+  "name": "my-app",
+  "version": "1.0.0",
+  "type": "module"
+}</code></pre>
+
+            <p>With this setting, all <code>.js</code> files are treated as ES Modules. Use <code>.cjs</code> extension
+                for CommonJS files if needed.</p>
+
+            <div class="warning-box">
+                <strong>Important:</strong> When using ES Modules in Node.js, you must include file extensions in your
+                imports: <code>import { add } from './math.js'</code> (not <code>'./math'</code>).
+            </div>
+        </section>
+
+        <section>
+            <h2>Interoperability: Using Both Together</h2>
+            <p>
+                During the transition period, you might need to use both module systems. Here's how they can
+                interoperate:
+            </p>
+
+            <h3>Importing CommonJS in ES Modules</h3>
+            <pre><code class="language-javascript">// CommonJS module: utils.cjs
+module.exports = {
+  formatDate(date) {
+    return date.toISOString();
+  }
+};
+
+// ES Module: app.js
+import utils from './utils.cjs';
+console.log(utils.formatDate(new Date()));</code></pre>
+
+            <h3>Importing ES Modules in CommonJS (Node.js 14+)</h3>
+            <pre><code class="language-javascript">// ES Module: math.mjs
+export function add(a, b) {
+  return a + b;
+}
+
+// CommonJS: app.cjs
+async function main() {
+  const math = await import('./math.mjs');
+  console.log(math.add(2, 3));
+}
+
+main();</code></pre>
+
+            <div class="info-box">
+                <strong>Note:</strong> You can import CommonJS from ESM easily, but importing ESM from CommonJS requires
+                dynamic <code>import()</code> which returns a Promise.
+            </div>
+        </section>
+
+        <section>
+            <h2>Tree Shaking and Optimization</h2>
+            <p>
+                One of the biggest advantages of ES Modules is <strong>tree shaking</strong> - the ability to eliminate
+                dead code during the build process.
+            </p>
+
+            <pre><code class="language-javascript">// utils.js (ES Module)
+export function usedFunction() {
+  return 'I am used';
+}
+
+export function unusedFunction() {
+  return 'I am never called';
+}
+
+// app.js
+import { usedFunction } from './utils.js';
+console.log(usedFunction());</code></pre>
+
+            <p>
+                With ES Modules, bundlers like Webpack or Rollup can analyze the code at build time and see that
+                <code>unusedFunction</code> is never imported. They can safely remove it from the final bundle, reducing
+                file size.
+            </p>
+
+            <p>
+                CommonJS makes this difficult because its dynamic nature means the bundler can't be sure what code is
+                actually used until runtime.
+            </p>
+        </section>
+
+        <section>
+            <h2>Comparison Table</h2>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>CommonJS</th>
+                        <th>ES Modules</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Syntax</strong></td>
+                        <td><code>require()</code> / <code>module.exports</code></td>
+                        <td><code>import</code> / <code>export</code></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Loading</strong></td>
+                        <td>Synchronous</td>
+                        <td>Asynchronous (can be sync in Node.js)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Structure</strong></td>
+                        <td>Dynamic (runtime)</td>
+                        <td>Static (compile-time)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Browser Support</strong></td>
+                        <td>No (needs bundler)</td>
+                        <td>Yes (native)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Node.js Support</strong></td>
+                        <td>Yes (default)</td>
+                        <td>Yes (opt-in)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Tree Shaking</strong></td>
+                        <td>Difficult</td>
+                        <td>Easy (static analysis)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Conditional Imports</strong></td>
+                        <td>Easy (anywhere)</td>
+                        <td>Use dynamic <code>import()</code></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Export Bindings</strong></td>
+                        <td>Copies (primitives)</td>
+                        <td>Live bindings</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Top-level await</strong></td>
+                        <td>No</td>
+                        <td>Yes</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Strict Mode</strong></td>
+                        <td>Optional</td>
+                        <td>Always enabled</td>
+                    </tr>
+                    <tr>
+                        <td><strong>File Extension</strong></td>
+                        <td><code>.js</code> or <code>.cjs</code></td>
+                        <td><code>.mjs</code> or <code>.js</code> with package.json config</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h2>Which Should You Use?</h2>
+
+            <h3>Use ES Modules When:</h3>
+            <ul>
+                <li>Building new projects (it's the future standard)</li>
+                <li>Writing code that runs in browsers</li>
+                <li>You want tree shaking and better optimization</li>
+                <li>You need top-level await</li>
+                <li>Building libraries for modern JavaScript</li>
+            </ul>
+
+            <h3>Use CommonJS When:</h3>
+            <ul>
+                <li>Maintaining legacy Node.js projects</li>
+                <li>You need maximum compatibility with older Node.js versions</li>
+                <li>Working with packages that don't support ESM yet</li>
+                <li>You need dynamic require() patterns extensively</li>
+            </ul>
+
+            <div class="tip-box">
+                <strong>Recommendation:</strong> For new projects, use ES Modules. The JavaScript ecosystem is moving
+                toward ESM as the standard, and modern tools have excellent support. However, understanding CommonJS
+                remains important for maintaining existing codebases.
+            </div>
+        </section>
+
+        <section>
+            <h2>Migration Tips</h2>
+            <p>If you're migrating from CommonJS to ES Modules:</p>
+            <ol>
+                <li>Add <code>"type": "module"</code> to your package.json</li>
+                <li>Replace <code>require()</code> with <code>import</code></li>
+                <li>Replace <code>module.exports</code> with <code>export</code></li>
+                <li>Add <code>.js</code> extensions to all relative imports</li>
+                <li>Replace <code>__dirname</code> and <code>__filename</code> with:
+                    <pre><code class="language-javascript">import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);</code></pre>
+                </li>
+                <li>Use dynamic <code>import()</code> for conditional imports</li>
+                <li>Test thoroughly—some npm packages may not support ESM yet</li>
+            </ol>
+        </section>
+
+        <section>
+            <h2>Conclusion</h2>
+            <p>
+                Both CommonJS and ES Modules have their place in the JavaScript ecosystem. CommonJS served the Node.js
+                community well for over a decade and remains widely used. ES Modules represent the future—they're the
+                official standard, work in both browsers and Node.js, and enable better optimization.
+            </p>
+            <p>
+                As a developer, understanding both systems is crucial. New projects should favor ES Modules, but you'll
+                likely encounter CommonJS in existing codebases and npm packages for years to come. The good news is
+                that they can interoperate, making the transition smoother.
+            </p>
+            <p>
+                The JavaScript module system has come a long way from the days of global variables and script tags. ES
+                Modules represent the culmination of years of evolution, providing a standardized, efficient, and
+                developer-friendly way to organize JavaScript code across all environments.
+            </p>
+        </section>
+
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2025 Coding Encounters. All rights reserved.</p>
+    </footer>
+</body>
+
+</html>
