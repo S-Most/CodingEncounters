@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Array Methods Deep Dive: map(), filter(), reduce() and Beyond</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"
+        defer></script>
+
+    <style>
+        main {
+            background: var(--card-background);
+            margin-block: 2rem;
+            padding: clamp(1rem, 5vw, 2.5rem);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1.5rem;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        .comparison-table th {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 5px solid #2196f3;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 4px;
+        }
+
+        .warning-box {
+            background: #ffebee;
+            border-left: 5px solid #f44336;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 4px;
+        }
+
+        .tip-box {
+            background: #f1f8e9;
+            border-left: 5px solid #8bc34a;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 4px;
+        }
+
+        .method-card {
+            background: #f5f5f5;
+            border-left: 4px solid var(--primary-color);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+        }
+
+        .method-card h3 {
+            margin-top: 0;
+            color: var(--primary-color);
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <h1><a href="../index.html" style="color: white; text-decoration: none;">Code Encounters</a></h1>
+    </header>
+
+    <main>
+        <h1>Array Methods Deep Dive: map(), filter(), reduce() and Beyond</h1>
+        <p class="article-date"><time datetime="2025-11-19">November 19, 2025</time></p>
+
+        <p>Modern JavaScript array methods have revolutionized how we work with data. Methods like <code>map()</code>,
+            <code>filter()</code>, and <code>reduce()</code> enable functional programming patterns that make code more
+            readable, maintainable, and expressive. In this comprehensive guide, we'll explore these essential methods
+            and more.</p>
+
+        <section>
+            <h2>Why Use Array Methods?</h2>
+            <p>
+                Array methods offer several advantages over traditional loops:
+            </p>
+            <ul>
+                <li><strong>Declarative:</strong> Express what you want, not how to do it</li>
+                <li><strong>Immutable:</strong> Don't modify the original array (mostly)</li>
+                <li><strong>Chainable:</strong> Combine multiple operations elegantly</li>
+                <li><strong>Readable:</strong> Intent is clear at a glance</li>
+                <li><strong>Less error-prone:</strong> No index management or loop counters</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>map(): Transform Every Element</h2>
+
+            <div class="method-card">
+                <h3>array.map(callback)</h3>
+                <p><strong>Purpose:</strong> Creates a new array by transforming every element</p>
+                <p><strong>Returns:</strong> New array with same length as original</p>
+                <p><strong>Mutates original:</strong> No</p>
+            </div>
+
+            <h3>Basic Usage</h3>
+            <pre><code class="language-javascript">const numbers = [1, 2, 3, 4, 5];
+
+// Double each number
+const doubled = numbers.map(num => num * 2);
+console.log(doubled); // [2, 4, 6, 8, 10]
+
+// Original array unchanged
+console.log(numbers); // [1, 2, 3, 4, 5]</code></pre>
+
+            <h3>Real-World Examples</h3>
+            <pre><code class="language-javascript">// Extract specific properties from objects
+const users = [
+  { id: 1, name: 'Alice', age: 25 },
+  { id: 2, name: 'Bob', age: 30 },
+  { id: 3, name: 'Charlie', age: 35 }
+];
+
+const names = users.map(user => user.name);
+console.log(names); // ['Alice', 'Bob', 'Charlie']
+
+// Transform data structure
+const userCards = users.map(user => ({
+  title: user.name,
+  subtitle: `${user.age} years old`,
+  id: user.id
+}));
+
+// Format prices
+const prices = [19.99, 29.99, 39.99];
+const formatted = prices.map(price => `$${price.toFixed(2)}`);
+console.log(formatted); // ['$19.99', '$29.99', '$39.99']</code></pre>
+
+            <div class="tip-box">
+                <strong>When to use map():</strong> When you need to transform each element in an array and get a new
+                array of the same length.
+            </div>
+        </section>
+
+        <section>
+            <h2>filter(): Select Elements</h2>
+
+            <div class="method-card">
+                <h3>array.filter(callback)</h3>
+                <p><strong>Purpose:</strong> Creates a new array with elements that pass a test</p>
+                <p><strong>Returns:</strong> New array (possibly shorter than original)</p>
+                <p><strong>Mutates original:</strong> No</p>
+            </div>
+
+            <h3>Basic Usage</h3>
+            <pre><code class="language-javascript">const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
+// Get even numbers
+const evens = numbers.filter(num => num % 2 === 0);
+console.log(evens); // [2, 4, 6, 8, 10]
+
+// Get numbers greater than 5
+const greaterThanFive = numbers.filter(num => num > 5);
+console.log(greaterThanFive); // [6, 7, 8, 9, 10]</code></pre>
+
+            <h3>Real-World Examples</h3>
+            <pre><code class="language-javascript">const users = [
+  { name: 'Alice', age: 25, active: true },
+  { name: 'Bob', age: 17, active: true },
+  { name: 'Charlie', age: 35, active: false },
+  { name: 'Diana', age: 22, active: true }
+];
+
+// Get active adult users
+const activeAdults = users.filter(user =>
+  user.active && user.age >= 18
+);
+console.log(activeAdults);
+// [{ name: 'Alice', ... }, { name: 'Diana', ... }]
+
+// Remove null/undefined values
+const data = [1, null, 2, undefined, 3, null, 4];
+const cleaned = data.filter(item => item != null);
+console.log(cleaned); // [1, 2, 3, 4]
+
+// Search functionality
+const products = [
+  { name: 'Laptop', category: 'Electronics' },
+  { name: 'Desk', category: 'Furniture' },
+  { name: 'Mouse', category: 'Electronics' }
+];
+
+const searchResults = products.filter(product =>
+  product.name.toLowerCase().includes('la')
+);
+console.log(searchResults); // [{ name: 'Laptop', ... }]</code></pre>
+
+            <div class="tip-box">
+                <strong>When to use filter():</strong> When you need to select a subset of elements based on a condition.
+            </div>
+        </section>
+
+        <section>
+            <h2>reduce(): Aggregate to a Single Value</h2>
+
+            <div class="method-card">
+                <h3>array.reduce(callback, initialValue)</h3>
+                <p><strong>Purpose:</strong> Reduces an array to a single value</p>
+                <p><strong>Returns:</strong> Any type (number, string, object, array, etc.)</p>
+                <p><strong>Mutates original:</strong> No</p>
+            </div>
+
+            <h3>Basic Usage</h3>
+            <pre><code class="language-javascript">const numbers = [1, 2, 3, 4, 5];
+
+// Sum all numbers
+const sum = numbers.reduce((accumulator, current) => {
+  return accumulator + current;
+}, 0); // 0 is the initial value
+
+console.log(sum); // 15
+
+// Shorter version
+const sum2 = numbers.reduce((acc, curr) => acc + curr, 0);</code></pre>
+
+            <h3>How reduce() Works</h3>
+            <pre><code class="language-javascript">// Step-by-step breakdown
+const numbers = [1, 2, 3, 4];
+
+numbers.reduce((acc, curr) => {
+  console.log(`acc: ${acc}, curr: ${curr}`);
+  return acc + curr;
+}, 0);
+
+// Output:
+// acc: 0, curr: 1  → returns 1
+// acc: 1, curr: 2  → returns 3
+// acc: 3, curr: 3  → returns 6
+// acc: 6, curr: 4  → returns 10
+// Final result: 10</code></pre>
+
+            <h3>Real-World Examples</h3>
+            <pre><code class="language-javascript">// Calculate total price
+const cart = [
+  { name: 'Laptop', price: 999 },
+  { name: 'Mouse', price: 25 },
+  { name: 'Keyboard', price: 75 }
+];
+
+const total = cart.reduce((sum, item) => sum + item.price, 0);
+console.log(total); // 1099
+
+// Count occurrences
+const fruits = ['apple', 'banana', 'apple', 'orange', 'banana', 'apple'];
+
+const count = fruits.reduce((acc, fruit) => {
+  acc[fruit] = (acc[fruit] || 0) + 1;
+  return acc;
+}, {});
+
+console.log(count);
+// { apple: 3, banana: 2, orange: 1 }
+
+// Group by property
+const people = [
+  { name: 'Alice', age: 25 },
+  { name: 'Bob', age: 30 },
+  { name: 'Charlie', age: 25 },
+  { name: 'Diana', age: 30 }
+];
+
+const groupedByAge = people.reduce((groups, person) => {
+  const age = person.age;
+  if (!groups[age]) {
+    groups[age] = [];
+  }
+  groups[age].push(person);
+  return groups;
+}, {});
+
+console.log(groupedByAge);
+// {
+//   25: [{ name: 'Alice', ... }, { name: 'Charlie', ... }],
+//   30: [{ name: 'Bob', ... }, { name: 'Diana', ... }]
+// }
+
+// Flatten nested arrays
+const nested = [[1, 2], [3, 4], [5, 6]];
+const flattened = nested.reduce((acc, arr) => acc.concat(arr), []);
+console.log(flattened); // [1, 2, 3, 4, 5, 6]</code></pre>
+
+            <div class="warning-box">
+                <strong>Common Mistake:</strong> Forgetting the initial value can lead to unexpected results. Always
+                provide an initial value unless you have a specific reason not to.
+            </div>
+        </section>
+
+        <section>
+            <h2>Chaining Methods</h2>
+            <p>
+                One of the most powerful features of array methods is the ability to chain them together.
+            </p>
+
+            <pre><code class="language-javascript">const users = [
+  { name: 'Alice', age: 25, score: 85 },
+  { name: 'Bob', age: 17, score: 92 },
+  { name: 'Charlie', age: 35, score: 78 },
+  { name: 'Diana', age: 22, score: 95 }
+];
+
+// Get names of adult users with score > 80, sorted
+const topAdultNames = users
+  .filter(user => user.age >= 18)      // Filter adults
+  .filter(user => user.score > 80)     // Filter high scorers
+  .map(user => user.name)              // Extract names
+  .sort();                             // Sort alphabetically
+
+console.log(topAdultNames); // ['Alice', 'Diana']
+
+// Calculate average score of adults
+const avgAdultScore = users
+  .filter(user => user.age >= 18)
+  .reduce((sum, user) => sum + user.score, 0) /
+  users.filter(user => user.age >= 18).length;
+
+console.log(avgAdultScore); // 86</code></pre>
+
+            <div class="tip-box">
+                <strong>Pro Tip:</strong> Chain methods in order of most filtering to least. This reduces the number of
+                elements processed in subsequent operations.
+            </div>
+        </section>
+
+        <section>
+            <h2>Other Essential Array Methods</h2>
+
+            <h3>find(): Get First Match</h3>
+            <pre><code class="language-javascript">const users = [
+  { id: 1, name: 'Alice' },
+  { id: 2, name: 'Bob' },
+  { id: 3, name: 'Charlie' }
+];
+
+const user = users.find(u => u.id === 2);
+console.log(user); // { id: 2, name: 'Bob' }
+
+// Returns undefined if not found
+const notFound = users.find(u => u.id === 99);
+console.log(notFound); // undefined</code></pre>
+
+            <h3>findIndex(): Get Index of First Match</h3>
+            <pre><code class="language-javascript">const numbers = [10, 20, 30, 40, 50];
+
+const index = numbers.findIndex(num => num > 25);
+console.log(index); // 2 (position of 30)
+
+// Returns -1 if not found
+const notFound = numbers.findIndex(num => num > 100);
+console.log(notFound); // -1</code></pre>
+
+            <h3>some(): Test if Any Element Passes</h3>
+            <pre><code class="language-javascript">const numbers = [1, 2, 3, 4, 5];
+
+const hasEven = numbers.some(num => num % 2 === 0);
+console.log(hasEven); // true
+
+const hasNegative = numbers.some(num => num < 0);
+console.log(hasNegative); // false</code></pre>
+
+            <h3>every(): Test if All Elements Pass</h3>
+            <pre><code class="language-javascript">const numbers = [2, 4, 6, 8, 10];
+
+const allEven = numbers.every(num => num % 2 === 0);
+console.log(allEven); // true
+
+const allPositive = numbers.every(num => num > 0);
+console.log(allPositive); // true</code></pre>
+
+            <h3>forEach(): Execute Function for Each Element</h3>
+            <pre><code class="language-javascript">const numbers = [1, 2, 3, 4, 5];
+
+// forEach doesn't return anything
+numbers.forEach(num => {
+  console.log(num * 2);
+});
+
+// Use map() if you need the results
+const doubled = numbers.map(num => num * 2);</code></pre>
+
+            <div class="warning-box">
+                <strong>Note:</strong> <code>forEach()</code> doesn't return a value and can't be chained. Use
+                <code>map()</code> if you need to transform and chain operations.
+            </div>
+        </section>
+
+        <section>
+            <h2>Performance Considerations</h2>
+
+            <h3>Array Methods vs. Traditional Loops</h3>
+            <pre><code class="language-javascript">const numbers = Array.from({ length: 1000000 }, (_, i) => i);
+
+// Traditional for loop (fastest)
+console.time('for loop');
+const result1 = [];
+for (let i = 0; i < numbers.length; i++) {
+  if (numbers[i] % 2 === 0) {
+    result1.push(numbers[i] * 2);
+  }
+}
+console.timeEnd('for loop');
+
+// Array methods (more readable, slightly slower)
+console.time('array methods');
+const result2 = numbers
+  .filter(num => num % 2 === 0)
+  .map(num => num * 2);
+console.timeEnd('array methods');
+
+// Optimized: single pass with reduce
+console.time('reduce');
+const result3 = numbers.reduce((acc, num) => {
+  if (num % 2 === 0) {
+    acc.push(num * 2);
+  }
+  return acc;
+}, []);
+console.timeEnd('reduce');</code></pre>
+
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Approach</th>
+                        <th>Performance</th>
+                        <th>Readability</th>
+                        <th>When to Use</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>for loop</strong></td>
+                        <td>Fastest</td>
+                        <td>Lower</td>
+                        <td>Performance-critical code</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Array methods</strong></td>
+                        <td>Slightly slower</td>
+                        <td>Highest</td>
+                        <td>Most situations</td>
+                    </tr>
+                    <tr>
+                        <td><strong>reduce (single pass)</strong></td>
+                        <td>Fast</td>
+                        <td>Medium</td>
+                        <td>Complex transformations</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="info-box">
+                <strong>Recommendation:</strong> Use array methods for readability unless you're processing millions of
+                items where performance is critical. Modern JavaScript engines optimize array methods well.
+            </div>
+        </section>
+
+        <section>
+            <h2>Common Mistakes and How to Avoid Them</h2>
+
+            <h3>1. Forgetting to Return in map()</h3>
+            <pre><code class="language-javascript">// ❌ Wrong - no return statement
+const doubled = [1, 2, 3].map(num => {
+  num * 2; // Missing return!
+});
+console.log(doubled); // [undefined, undefined, undefined]
+
+// ✅ Correct
+const doubled = [1, 2, 3].map(num => {
+  return num * 2;
+});
+
+// ✅ Or use implicit return
+const doubled = [1, 2, 3].map(num => num * 2);</code></pre>
+
+            <h3>2. Mutating Objects in map()</h3>
+            <pre><code class="language-javascript">const users = [{ name: 'Alice', age: 25 }];
+
+// ❌ Wrong - mutates original objects
+const updated = users.map(user => {
+  user.age += 1; // Mutating!
+  return user;
+});
+
+// ✅ Correct - create new objects
+const updated = users.map(user => ({
+  ...user,
+  age: user.age + 1
+}));</code></pre>
+
+            <h3>3. Using forEach() When You Need a Return Value</h3>
+            <pre><code class="language-javascript">// ❌ Wrong - forEach returns undefined
+const doubled = [1, 2, 3].forEach(num => num * 2);
+console.log(doubled); // undefined
+
+// ✅ Correct - use map
+const doubled = [1, 2, 3].map(num => num * 2);</code></pre>
+        </section>
+
+        <section>
+            <h2>Advanced Patterns</h2>
+
+            <h3>Combining Multiple Operations</h3>
+            <pre><code class="language-javascript">// Get unique values
+const numbers = [1, 2, 2, 3, 3, 3, 4, 5, 5];
+const unique = [...new Set(numbers)];
+console.log(unique); // [1, 2, 3, 4, 5]
+
+// Or using reduce
+const unique2 = numbers.reduce((acc, num) => {
+  if (!acc.includes(num)) {
+    acc.push(num);
+  }
+  return acc;
+}, []);
+
+// Partition array into two groups
+const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
+const [evens, odds] = numbers.reduce(
+  ([evens, odds], num) => {
+    if (num % 2 === 0) {
+      evens.push(num);
+    } else {
+      odds.push(num);
+    }
+    return [evens, odds];
+  },
+  [[], []]
+);
+
+console.log(evens); // [2, 4, 6, 8, 10]
+console.log(odds);  // [1, 3, 5, 7, 9]</code></pre>
+        </section>
+
+        <section>
+            <h2>Best Practices</h2>
+            <ul>
+                <li><strong>Use descriptive variable names:</strong> <code>user => user.name</code> is clearer than
+                    <code>u => u.n</code></li>
+                <li><strong>Keep callbacks pure:</strong> Don't mutate external state</li>
+                <li><strong>Chain wisely:</strong> Too many chains can hurt readability</li>
+                <li><strong>Consider performance:</strong> For large datasets, measure before optimizing</li>
+                <li><strong>Use the right method:</strong> Don't use <code>map()</code> when you need
+                    <code>filter()</code></li>
+                <li><strong>Provide initial values:</strong> Always use initial value with <code>reduce()</code></li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Conclusion</h2>
+            <p>
+                Modern array methods are essential tools in every JavaScript developer's toolkit. They enable functional
+                programming patterns that make code more declarative, readable, and maintainable. While there's a slight
+                performance cost compared to traditional loops, the benefits in code clarity and reduced bugs far
+                outweigh this in most applications.
+            </p>
+            <p>
+                Master these methods, understand when to use each one, and you'll write cleaner, more expressive
+                JavaScript code. Practice chaining them together to solve complex data transformation problems with
+                elegant, readable solutions.
+            </p>
+        </section>
+
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2025 Coding Encounters. All rights reserved.</p>
+    </footer>
+</body>
+
+</html>

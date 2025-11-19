@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Understanding JavaScript Closures: Scope, Memory, and Practical Use Cases</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"
+        defer></script>
+
+    <style>
+        main {
+            background: var(--card-background);
+            margin-block: 2rem;
+            padding: clamp(1rem, 5vw, 2.5rem);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1.5rem;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        .comparison-table th {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 5px solid #2196f3;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 4px;
+        }
+
+        .warning-box {
+            background: #ffebee;
+            border-left: 5px solid #f44336;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 4px;
+        }
+
+        .tip-box {
+            background: #f1f8e9;
+            border-left: 5px solid #8bc34a;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 4px;
+        }
+
+        .visual-box {
+            background: #f5f5f5;
+            border: 2px solid #ddd;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <h1><a href="../index.html" style="color: white; text-decoration: none;">Code Encounters</a></h1>
+    </header>
+
+    <main>
+        <h1>Understanding JavaScript Closures: Scope, Memory, and Practical Use Cases</h1>
+        <p class="article-date"><time datetime="2025-11-19">November 19, 2025</time></p>
+
+        <p>Closures are one of the most powerful and misunderstood features in JavaScript. They're fundamental to how
+            JavaScript works, yet many developers struggle to grasp what they are and when to use them. In this article,
+            we'll demystify closures, explore how they work in memory, and look at practical use cases.</p>
+
+        <section>
+            <h2>What is a Closure?</h2>
+            <p>
+                A closure is a function that has access to variables in its outer (enclosing) lexical scope, even after
+                the outer function has returned. In simpler terms: a closure gives you access to an outer function's
+                scope from an inner function.
+            </p>
+
+            <div class="info-box">
+                <strong>Definition:</strong> A closure is the combination of a function bundled together (enclosed) with
+                references to its surrounding state (the lexical environment).
+            </div>
+
+            <h3>Basic Example</h3>
+            <pre><code class="language-javascript">function outer() {
+  const message = 'Hello from outer!';
+
+  function inner() {
+    console.log(message); // Can access 'message'
+  }
+
+  return inner;
+}
+
+const myFunction = outer();
+myFunction(); // "Hello from outer!"</code></pre>
+
+            <p>
+                Even though <code>outer()</code> has finished executing, <code>inner()</code> still has access to
+                <code>message</code>. This is a closure!
+            </p>
+        </section>
+
+        <section>
+            <h2>Understanding Lexical Scope</h2>
+            <p>
+                To understand closures, you first need to understand lexical scope. Lexical scope means that the
+                accessibility of variables is determined by their position in the source code.
+            </p>
+
+            <pre><code class="language-javascript">const global = 'I am global';
+
+function outer() {
+  const outerVar = 'I am from outer';
+
+  function middle() {
+    const middleVar = 'I am from middle';
+
+    function inner() {
+      const innerVar = 'I am from inner';
+
+      // inner() can access all variables:
+      console.log(innerVar);   // ✅ Own scope
+      console.log(middleVar);  // ✅ Parent scope
+      console.log(outerVar);   // ✅ Grandparent scope
+      console.log(global);     // ✅ Global scope
+    }
+
+    return inner;
+  }
+
+  return middle;
+}
+
+const myInner = outer()();
+myInner();</code></pre>
+
+            <div class="visual-box">
+                <strong>Scope Chain Visualization:</strong><br>
+                Global Scope: { global }<br>
+                └─ outer(): { outerVar }<br>
+                &nbsp;&nbsp;&nbsp;└─ middle(): { middleVar }<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─ inner(): { innerVar }
+            </div>
+        </section>
+
+        <section>
+            <h2>How Closures Work in Memory</h2>
+            <p>
+                When a function is created, JavaScript stores a reference to its lexical environment. This environment
+                contains all the variables that were in scope when the function was defined.
+            </p>
+
+            <pre><code class="language-javascript">function createCounter() {
+  let count = 0; // This variable is "closed over"
+
+  return function() {
+    count++;
+    return count;
+  };
+}
+
+const counter1 = createCounter();
+const counter2 = createCounter();
+
+console.log(counter1()); // 1
+console.log(counter1()); // 2
+console.log(counter2()); // 1 (separate closure!)
+console.log(counter1()); // 3</code></pre>
+
+            <p>
+                Each call to <code>createCounter()</code> creates a new lexical environment with its own
+                <code>count</code> variable. The returned function "closes over" this variable, keeping it alive in
+                memory.
+            </p>
+
+            <div class="info-box">
+                <strong>Memory Insight:</strong> The <code>count</code> variable is not garbage collected because the
+                returned function still references it. This is both powerful and something to be aware of for memory
+                management.
+            </div>
+        </section>
+
+        <section>
+            <h2>Practical Use Case 1: Data Privacy</h2>
+            <p>
+                Closures allow you to create private variables that can't be accessed directly from outside the function.
+            </p>
+
+            <pre><code class="language-javascript">function createBankAccount(initialBalance) {
+  let balance = initialBalance; // Private variable
+
+  return {
+    deposit(amount) {
+      if (amount > 0) {
+        balance += amount;
+        return balance;
+      }
+    },
+
+    withdraw(amount) {
+      if (amount > 0 && amount <= balance) {
+        balance -= amount;
+        return balance;
+      }
+      return 'Insufficient funds';
+    },
+
+    getBalance() {
+      return balance;
+    }
+  };
+}
+
+const myAccount = createBankAccount(100);
+console.log(myAccount.getBalance()); // 100
+myAccount.deposit(50);
+console.log(myAccount.getBalance()); // 150
+console.log(myAccount.balance); // undefined (private!)</code></pre>
+
+            <p>
+                The <code>balance</code> variable is completely private. The only way to interact with it is through the
+                methods we've exposed.
+            </p>
+        </section>
+
+        <section>
+            <h2>Practical Use Case 2: Function Factories</h2>
+            <p>
+                Closures are perfect for creating functions with pre-configured behavior.
+            </p>
+
+            <pre><code class="language-javascript">function createMultiplier(multiplier) {
+  return function(number) {
+    return number * multiplier;
+  };
+}
+
+const double = createMultiplier(2);
+const triple = createMultiplier(3);
+const quadruple = createMultiplier(4);
+
+console.log(double(5));     // 10
+console.log(triple(5));     // 15
+console.log(quadruple(5));  // 20</code></pre>
+
+            <h3>Real-World Example: API Request Builder</h3>
+            <pre><code class="language-javascript">function createAPIClient(baseURL, apiKey) {
+  return {
+    get(endpoint) {
+      return fetch(`${baseURL}${endpoint}`, {
+        headers: { 'Authorization': `Bearer ${apiKey}` }
+      });
+    },
+
+    post(endpoint, data) {
+      return fetch(`${baseURL}${endpoint}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      });
+    }
+  };
+}
+
+const api = createAPIClient('https://api.example.com', 'secret-key');
+api.get('/users');
+api.post('/users', { name: 'Alice' });</code></pre>
+        </section>
+
+        <section>
+            <h2>Practical Use Case 3: Event Handlers and Callbacks</h2>
+            <p>
+                Closures are commonly used with event handlers to maintain state or configuration.
+            </p>
+
+            <pre><code class="language-javascript">function setupButton(buttonId, message) {
+  const button = document.getElementById(buttonId);
+  let clickCount = 0;
+
+  button.addEventListener('click', function() {
+    clickCount++;
+    console.log(`${message} - Clicked ${clickCount} times`);
+  });
+}
+
+setupButton('btn1', 'Button 1');
+setupButton('btn2', 'Button 2');</code></pre>
+
+            <p>
+                Each button maintains its own <code>clickCount</code> and <code>message</code> through closures.
+            </p>
+        </section>
+
+        <section>
+            <h2>Practical Use Case 4: Memoization</h2>
+            <p>
+                Closures can cache function results for performance optimization.
+            </p>
+
+            <pre><code class="language-javascript">function memoize(fn) {
+  const cache = {}; // Closed over by returned function
+
+  return function(...args) {
+    const key = JSON.stringify(args);
+
+    if (key in cache) {
+      console.log('Returning cached result');
+      return cache[key];
+    }
+
+    console.log('Computing result');
+    const result = fn(...args);
+    cache[key] = result;
+    return result;
+  };
+}
+
+function expensiveCalculation(n) {
+  // Simulate expensive operation
+  let result = 0;
+  for (let i = 0; i < n * 1000000; i++) {
+    result += i;
+  }
+  return result;
+}
+
+const memoized = memoize(expensiveCalculation);
+
+memoized(5); // "Computing result" (slow)
+memoized(5); // "Returning cached result" (fast!)
+memoized(10); // "Computing result" (slow)
+memoized(5); // "Returning cached result" (fast!)</code></pre>
+        </section>
+
+        <section>
+            <h2>Common Pitfall: Closures in Loops</h2>
+            <p>
+                One of the most common mistakes with closures happens in loops.
+            </p>
+
+            <h3>❌ The Problem</h3>
+            <pre><code class="language-javascript">// Using var (function-scoped)
+for (var i = 0; i < 3; i++) {
+  setTimeout(function() {
+    console.log(i);
+  }, 1000);
+}
+// Output: 3, 3, 3 (not 0, 1, 2!)</code></pre>
+
+            <p>
+                All three functions close over the same <code>i</code> variable, which is 3 by the time the timeouts
+                execute.
+            </p>
+
+            <h3>✅ Solution 1: Use let (Block-Scoped)</h3>
+            <pre><code class="language-javascript">for (let i = 0; i < 3; i++) {
+  setTimeout(function() {
+    console.log(i);
+  }, 1000);
+}
+// Output: 0, 1, 2</code></pre>
+
+            <h3>✅ Solution 2: IIFE (Immediately Invoked Function Expression)</h3>
+            <pre><code class="language-javascript">for (var i = 0; i < 3; i++) {
+  (function(index) {
+    setTimeout(function() {
+      console.log(index);
+    }, 1000);
+  })(i);
+}
+// Output: 0, 1, 2</code></pre>
+        </section>
+
+        <section>
+            <h2>Memory Considerations</h2>
+            <p>
+                While closures are powerful, they can lead to memory issues if not used carefully.
+            </p>
+
+            <div class="warning-box">
+                <strong>Memory Leak Warning:</strong> Variables closed over by a function are not garbage collected
+                until the function itself is no longer referenced. Be mindful of this in long-running applications.
+            </div>
+
+            <h3>Example: Potential Memory Leak</h3>
+            <pre><code class="language-javascript">function createHeavyHandler() {
+  const hugeArray = new Array(1000000).fill('data');
+
+  return function() {
+    // Even if we don't use hugeArray here,
+    // it's kept in memory because of the closure
+    console.log('Handler called');
+  };
+}
+
+// If you create many handlers, memory usage grows
+const handlers = [];
+for (let i = 0; i < 100; i++) {
+  handlers.push(createHeavyHandler());
+}</code></pre>
+
+            <h3>✅ Better Approach</h3>
+            <pre><code class="language-javascript">function createHeavyHandler() {
+  const hugeArray = new Array(1000000).fill('data');
+
+  // Process the data immediately
+  const summary = hugeArray.length;
+
+  // Only close over what you need
+  return function() {
+    console.log(`Handler called, processed ${summary} items`);
+  };
+}</code></pre>
+        </section>
+
+        <section>
+            <h2>Closures vs. Classes</h2>
+            <p>
+                Modern JavaScript has classes, but closures still offer unique advantages for certain patterns.
+            </p>
+
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>Closures</th>
+                        <th>Classes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Private Variables</strong></td>
+                        <td>True privacy (not accessible at all)</td>
+                        <td>Private fields (#) are newer, less supported</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Syntax</strong></td>
+                        <td>Function-based, functional style</td>
+                        <td>Class-based, OOP style</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Memory</strong></td>
+                        <td>Each instance has own methods</td>
+                        <td>Methods shared via prototype</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Inheritance</strong></td>
+                        <td>Composition-based</td>
+                        <td>Class-based with extends</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Use Case</strong></td>
+                        <td>Functional programming, data privacy</td>
+                        <td>Object-oriented patterns</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h2>Best Practices</h2>
+            <ul>
+                <li><strong>Use closures for data privacy:</strong> When you need truly private variables</li>
+                <li><strong>Be mindful of memory:</strong> Only close over variables you actually need</li>
+                <li><strong>Prefer let/const over var:</strong> Avoid common closure pitfalls in loops</li>
+                <li><strong>Use closures for configuration:</strong> Function factories and partial application</li>
+                <li><strong>Document closure behavior:</strong> Make it clear when functions rely on closed-over
+                    variables</li>
+                <li><strong>Clean up when needed:</strong> Set references to null when closures are no longer needed
+                </li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Conclusion</h2>
+            <p>
+                Closures are a fundamental concept in JavaScript that enable powerful patterns like data privacy,
+                function factories, and memoization. While they can seem mysterious at first, understanding how they work
+                with lexical scope and memory will make you a more effective JavaScript developer.
+            </p>
+            <p>
+                The key takeaway: a closure is simply a function that remembers the variables from the place where it was
+                created, even after that place has finished executing. This simple concept unlocks a world of
+                possibilities in JavaScript programming.
+            </p>
+
+            <div class="tip-box">
+                <strong>Practice Tip:</strong> The best way to understand closures is to use them! Try creating your own
+                counter, bank account, or function factory. Experiment with different patterns and observe how variables
+                are preserved across function calls.
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2025 Coding Encounters. All rights reserved.</p>
+    </footer>
+</body>
+
+</html>

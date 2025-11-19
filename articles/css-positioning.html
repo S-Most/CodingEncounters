@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS Positioning: static, relative, absolute, fixed, and sticky Explained</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js" defer></script>
+    <style>
+        main { background: var(--card-background); margin-block: 2rem; padding: clamp(1rem, 5vw, 2.5rem); border-radius: var(--border-radius); box-shadow: var(--shadow); }
+        .comparison-table { width: 100%; border-collapse: collapse; margin-top: 1.5rem; }
+        .comparison-table th, .comparison-table td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        .comparison-table th { background-color: var(--secondary-color); color: white; }
+        .comparison-table tr:nth-child(even) { background-color: #f9f9f9; }
+        .info-box { background: #e3f2fd; border-left: 5px solid #2196f3; padding: 1rem; margin-top: 1rem; border-radius: 4px; }
+        .tip-box { background: #f1f8e9; border-left: 5px solid #8bc34a; padding: 1rem; margin-top: 1rem; border-radius: 4px; }
+        .demo-box { background: #f5f5f5; border: 2px dashed #999; padding: 2rem; margin: 1rem 0; position: relative; min-height: 200px; }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1><a href="../index.html" style="color: white; text-decoration: none;">Code Encounters</a></h1>
+    </header>
+    <main>
+        <h1>CSS Positioning: static, relative, absolute, fixed, and sticky Explained</h1>
+        <p class="article-date"><time datetime="2025-11-19">November 19, 2025</time></p>
+
+        <p>CSS positioning is fundamental to creating complex layouts. Understanding the five positioning values and how they interact is essential for any web developer. Let's explore each one in detail.</p>
+
+        <section>
+            <h2>The Five Position Values</h2>
+            <ul>
+                <li><code>static</code> - Default, normal document flow</li>
+                <li><code>relative</code> - Positioned relative to its normal position</li>
+                <li><code>absolute</code> - Positioned relative to nearest positioned ancestor</li>
+                <li><code>fixed</code> - Positioned relative to the viewport</li>
+                <li><code>sticky</code> - Hybrid of relative and fixed</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>1. Static Positioning (Default)</h2>
+            <p>Elements are positioned according to the normal document flow. The <code>top</code>, <code>right</code>, <code>bottom</code>, <code>left</code>, and <code>z-index</code> properties have no effect.</p>
+            
+            <pre><code class="language-css">.element {
+  position: static; /* Default value */
+}</code></pre>
+
+            <p><strong>When to use:</strong> You rarely need to explicitly set this. It's the default behavior.</p>
+        </section>
+
+        <section>
+            <h2>2. Relative Positioning</h2>
+            <p>Element is positioned relative to its normal position. The space it would have occupied in the normal flow is preserved.</p>
+            
+            <pre><code class="language-css">.relative-box {
+  position: relative;
+  top: 20px;    /* Moves down 20px */
+  left: 30px;   /* Moves right 30px */
+}</code></pre>
+
+            <div class="info-box">
+                <strong>Key Point:</strong> The element moves, but its original space remains. Other elements don't fill the gap.
+            </div>
+
+            <h3>Common Use Cases</h3>
+            <ul>
+                <li>Creating a positioning context for absolutely positioned children</li>
+                <li>Fine-tuning element position without affecting layout</li>
+                <li>Adding small visual adjustments</li>
+            </ul>
+
+            <pre><code class="language-css">/* Parent for absolute children */
+.card {
+  position: relative;
+}
+
+.badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}</code></pre>
+        </section>
+
+        <section>
+            <h2>3. Absolute Positioning</h2>
+            <p>Element is removed from normal document flow and positioned relative to its nearest positioned ancestor (any ancestor with <code>position</code> other than <code>static</code>).</p>
+            
+            <pre><code class="language-css">.absolute-box {
+  position: absolute;
+  top: 0;
+  right: 0;
+}</code></pre>
+
+            <div class="info-box">
+                <strong>Important:</strong> If no positioned ancestor exists, the element is positioned relative to the initial containing block (usually the <code>&lt;html&gt;</code> element).
+            </div>
+
+            <h3>Common Patterns</h3>
+            <pre><code class="language-css">/* Centered overlay */
+.overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* Full coverage */
+.cover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+/* Corner badge */
+.badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}</code></pre>
+        </section>
+
+        <section>
+            <h2>4. Fixed Positioning</h2>
+            <p>Element is positioned relative to the viewport. It stays in the same place even when the page is scrolled.</p>
+            
+            <pre><code class="language-css">.fixed-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: white;
+  z-index: 1000;
+}</code></pre>
+
+            <h3>Common Use Cases</h3>
+            <ul>
+                <li>Fixed navigation bars</li>
+                <li>Floating action buttons</li>
+                <li>Cookie consent banners</li>
+                <li>Chat widgets</li>
+            </ul>
+
+            <pre><code class="language-css">/* Fixed navigation */
+.navbar {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 100;
+}
+
+/* Floating button */
+.fab {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+}</code></pre>
+
+            <div class="tip-box">
+                <strong>Tip:</strong> Remember to add padding to the body when using fixed headers to prevent content from hiding underneath.
+            </div>
+        </section>
+
+        <section>
+            <h2>5. Sticky Positioning</h2>
+            <p>A hybrid of relative and fixed. The element is treated as relative until it crosses a specified threshold, then it's treated as fixed.</p>
+            
+            <pre><code class="language-css">.sticky-header {
+  position: sticky;
+  top: 0; /* Sticks when reaching top of viewport */
+  background: white;
+  z-index: 10;
+}</code></pre>
+
+            <div class="info-box">
+                <strong>How it works:</strong> Element behaves like <code>position: relative</code> until you scroll past it, then it becomes <code>position: fixed</code> until its container scrolls out of view.
+            </div>
+
+            <h3>Requirements for Sticky</h3>
+            <ul>
+                <li>Must specify at least one of: <code>top</code>, <code>right</code>, <code>bottom</code>, or <code>left</code></li>
+                <li>Parent container must have a height (can't be <code>height: auto</code> in some cases)</li>
+                <li>Parent must not have <code>overflow: hidden</code> or <code>overflow: auto</code></li>
+            </ul>
+
+            <pre><code class="language-css">/* Sticky table headers */
+thead th {
+  position: sticky;
+  top: 0;
+  background: white;
+}
+
+/* Sticky sidebar */
+.sidebar {
+  position: sticky;
+  top: 20px;
+  height: fit-content;
+}</code></pre>
+        </section>
+
+        <section>
+            <h2>Understanding Z-Index and Stacking Context</h2>
+            <p>The <code>z-index</code> property controls the stacking order of positioned elements.</p>
+            
+            <pre><code class="language-css">.modal-backdrop {
+  position: fixed;
+  z-index: 1000;
+}
+
+.modal-content {
+  position: fixed;
+  z-index: 1001; /* Appears above backdrop */
+}</code></pre>
+
+            <div class="info-box">
+                <strong>Important:</strong> <code>z-index</code> only works on positioned elements (<code>position</code> other than <code>static</code>).
+            </div>
+
+            <h3>Stacking Context Rules</h3>
+            <p>A new stacking context is created by:</p>
+            <ul>
+                <li>Root element (<code>&lt;html&gt;</code>)</li>
+                <li>Positioned elements with <code>z-index</code> other than <code>auto</code></li>
+                <li>Elements with <code>opacity</code> less than 1</li>
+                <li>Elements with <code>transform</code>, <code>filter</code>, or other properties</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Comparison Table</h2>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Position</th>
+                        <th>Relative To</th>
+                        <th>Affects Layout</th>
+                        <th>Scrolls</th>
+                        <th>Common Use</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>static</strong></td>
+                        <td>Normal flow</td>
+                        <td>Yes</td>
+                        <td>Yes</td>
+                        <td>Default behavior</td>
+                    </tr>
+                    <tr>
+                        <td><strong>relative</strong></td>
+                        <td>Its normal position</td>
+                        <td>Yes (space preserved)</td>
+                        <td>Yes</td>
+                        <td>Positioning context, small adjustments</td>
+                    </tr>
+                    <tr>
+                        <td><strong>absolute</strong></td>
+                        <td>Nearest positioned ancestor</td>
+                        <td>No (removed from flow)</td>
+                        <td>Yes (with parent)</td>
+                        <td>Overlays, tooltips, dropdowns</td>
+                    </tr>
+                    <tr>
+                        <td><strong>fixed</strong></td>
+                        <td>Viewport</td>
+                        <td>No (removed from flow)</td>
+                        <td>No</td>
+                        <td>Fixed headers, floating buttons</td>
+                    </tr>
+                    <tr>
+                        <td><strong>sticky</strong></td>
+                        <td>Scroll container</td>
+                        <td>Yes (until stuck)</td>
+                        <td>Hybrid</td>
+                        <td>Sticky headers, sidebars</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h2>Common Patterns and Recipes</h2>
+
+            <h3>Centered Modal</h3>
+            <pre><code class="language-css">.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  position: relative;
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  max-width: 500px;
+}</code></pre>
+
+            <h3>Sticky Navigation with Offset</h3>
+            <pre><code class="language-css">.sticky-nav {
+  position: sticky;
+  top: 20px; /* 20px from top when stuck */
+  background: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  z-index: 100;
+}</code></pre>
+
+            <h3>Absolutely Positioned Icon in Button</h3>
+            <pre><code class="language-css">.button {
+  position: relative;
+  padding: 10px 40px 10px 20px;
+}
+
+.button-icon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+}</code></pre>
+        </section>
+
+        <section>
+            <h2>Responsive Positioning</h2>
+            <pre><code class="language-css">/* Mobile: fixed at bottom */
+.action-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+/* Desktop: sticky in sidebar */
+@media (min-width: 768px) {
+  .action-bar {
+    position: sticky;
+    top: 20px;
+  }
+}</code></pre>
+        </section>
+
+        <section>
+            <h2>Common Pitfalls</h2>
+            <ul>
+                <li><strong>Forgetting positioning context:</strong> Absolute elements need a positioned parent</li>
+                <li><strong>Z-index not working:</strong> Element must be positioned</li>
+                <li><strong>Sticky not sticking:</strong> Check parent overflow and height</li>
+                <li><strong>Fixed elements covering content:</strong> Add padding to body/container</li>
+                <li><strong>Absolute elements overflowing:</strong> Parent needs defined dimensions</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Best Practices</h2>
+            <ul>
+                <li>Use <code>relative</code> on parents of <code>absolute</code> children</li>
+                <li>Keep z-index values organized (use a scale like 10, 20, 30)</li>
+                <li>Test sticky positioning across browsers</li>
+                <li>Consider mobile viewports for fixed elements</li>
+                <li>Use semantic HTML with positioning for accessibility</li>
+                <li>Avoid excessive nesting of positioned elements</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Conclusion</h2>
+            <p>CSS positioning is a powerful tool for creating complex layouts. Understanding when to use each positioning value and how they interact with the document flow is essential for modern web development. Practice with these patterns, and you'll be able to create any layout you can imagine.</p>
+        </section>
+    </main>
+    <footer class="footer">
+        <p>&copy; 2025 Coding Encounters. All rights reserved.</p>
+    </footer>
+</body>
+</html>

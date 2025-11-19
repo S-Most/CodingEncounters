@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TypeScript vs JavaScript: When to Make the Switch</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js" defer></script>
+    <style>
+        main { background: var(--card-background); margin-block: 2rem; padding: clamp(1rem, 5vw, 2.5rem); border-radius: var(--border-radius); box-shadow: var(--shadow); }
+        .comparison-table { width: 100%; border-collapse: collapse; margin-top: 1.5rem; }
+        .comparison-table th, .comparison-table td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        .comparison-table th { background-color: var(--secondary-color); color: white; }
+        .comparison-table tr:nth-child(even) { background-color: #f9f9f9; }
+        .info-box { background: #e3f2fd; border-left: 5px solid #2196f3; padding: 1rem; margin-top: 1rem; border-radius: 4px; }
+        .tip-box { background: #f1f8e9; border-left: 5px solid #8bc34a; padding: 1rem; margin-top: 1rem; border-radius: 4px; }
+        .code-comparison-wrapper { background: var(--secondary-color); margin: 2rem 0; padding: 2.5rem 1rem; width: 100vw; position: relative; left: 50%; right: 50%; margin-left: -50vw; margin-right: -50vw; }
+        .code-comparison { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; max-width: 1200px; margin: 0 auto; padding: 0 1rem; }
+        .code-comparison > div { background: white; padding: 1.5rem; border-radius: var(--border-radius); box-shadow: var(--shadow); }
+        @media (max-width: 768px) { .code-comparison-wrapper { padding: 2rem 1rem; } .code-comparison { grid-template-columns: 1fr; gap: 1.5rem; padding: 0 0.5rem; } }
+        .code-block-label { font-weight: bold; color: var(--primary-color); margin-bottom: 0.5rem; }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1><a href="../index.html" style="color: white; text-decoration: none;">Code Encounters</a></h1>
+    </header>
+    <main>
+        <h1>TypeScript vs JavaScript: When to Make the Switch</h1>
+        <p class="article-date"><time datetime="2025-11-19">November 19, 2025</time></p>
+
+        <p>TypeScript has become increasingly popular in the JavaScript ecosystem. But is it worth the added complexity? Let's explore the differences, benefits, and when you should consider making the switch.</p>
+
+        <section>
+            <h2>What is TypeScript?</h2>
+            <p>TypeScript is a superset of JavaScript that adds static typing. It compiles to plain JavaScript and can run anywhere JavaScript runs.</p>
+            
+            <div class="code-comparison-wrapper">
+                <div class="code-comparison">
+                    <div>
+                        <div class="code-block-label">JavaScript</div>
+                        <pre><code class="language-javascript">function greet(name) {
+  return "Hello, " + name;
+}
+
+greet("Alice");  // ✅ Works
+greet(123);      // ✅ Works (but maybe not intended)
+greet();         // ✅ "Hello, undefined"</code></pre>
+                    </div>
+                    <div>
+                        <div class="code-block-label">TypeScript</div>
+                        <pre><code class="language-typescript">function greet(name: string): string {
+  return "Hello, " + name;
+}
+
+greet("Alice");  // ✅ Works
+greet(123);      // ❌ Error: Argument of type 'number'
+greet();         // ❌ Error: Expected 1 argument</code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>Key Differences</h2>
+
+            <h3>1. Type System</h3>
+            <pre><code class="language-typescript">// TypeScript: Explicit types
+let age: number = 25;
+let name: string = "Alice";
+let isActive: boolean = true;
+
+// Type inference
+let count = 10; // TypeScript infers number
+
+// Custom types
+interface User {
+  id: number;
+  name: string;
+  email: string;
+}
+
+const user: User = {
+  id: 1,
+  name: "Alice",
+  email: "alice@example.com"
+};</code></pre>
+
+            <h3>2. Interfaces and Type Aliases</h3>
+            <pre><code class="language-typescript">// Interface
+interface Product {
+  id: number;
+  name: string;
+  price: number;
+  inStock?: boolean; // Optional property
+}
+
+// Type alias
+type Status = "pending" | "approved" | "rejected";
+
+// Function type
+type Callback = (data: string) => void;</code></pre>
+
+            <h3>3. Generics</h3>
+            <pre><code class="language-typescript">// Generic function
+function identity<T>(arg: T): T {
+  return arg;
+}
+
+identity<string>("hello");  // Type: string
+identity<number>(42);       // Type: number
+
+// Generic interface
+interface ApiResponse<T> {
+  data: T;
+  status: number;
+  message: string;
+}
+
+const response: ApiResponse<User> = {
+  data: { id: 1, name: "Alice", email: "alice@example.com" },
+  status: 200,
+  message: "Success"
+};</code></pre>
+        </section>
+
+        <section>
+            <h2>Benefits of TypeScript</h2>
+
+            <h3>1. Catch Errors Early</h3>
+            <pre><code class="language-typescript">// TypeScript catches this before runtime
+function calculateTotal(price: number, quantity: number): number {
+  return price * quantity;
+}
+
+calculateTotal(10, "5"); // ❌ Error caught at compile time!</code></pre>
+
+            <h3>2. Better IDE Support</h3>
+            <ul>
+                <li>Intelligent autocomplete</li>
+                <li>Inline documentation</li>
+                <li>Refactoring tools</li>
+                <li>Go to definition</li>
+            </ul>
+
+            <h3>3. Self-Documenting Code</h3>
+            <pre><code class="language-typescript">// Types serve as documentation
+function fetchUser(id: number): Promise<User> {
+  // Implementation
+}
+
+// Clear what the function expects and returns!</code></pre>
+
+            <h3>4. Safer Refactoring</h3>
+            <p>When you rename a property or change a function signature, TypeScript shows you every place that needs updating.</p>
+        </section>
+
+        <section>
+            <h2>Drawbacks of TypeScript</h2>
+            <ul>
+                <li><strong>Learning curve:</strong> Need to learn type system</li>
+                <li><strong>Build step required:</strong> Must compile TypeScript to JavaScript</li>
+                <li><strong>More verbose:</strong> More code to write</li>
+                <li><strong>Configuration:</strong> tsconfig.json setup</li>
+                <li><strong>Third-party types:</strong> Some libraries need @types packages</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Real-World Example</h2>
+
+            <div class="code-comparison-wrapper">
+                <div class="code-comparison">
+                    <div>
+                        <div class="code-block-label">JavaScript</div>
+                        <pre><code class="language-javascript">// No type safety
+function createUser(data) {
+  return {
+    id: data.id,
+    name: data.name,
+    email: data.email,
+    createdAt: new Date()
+  };
+}
+
+// Easy to make mistakes
+const user = createUser({
+  id: "1", // Should be number
+  name: "Alice"
+  // Missing email!
+});</code></pre>
+                    </div>
+                    <div>
+                        <div class="code-block-label">TypeScript</div>
+                        <pre><code class="language-typescript">// Type-safe
+interface UserInput {
+  id: number;
+  name: string;
+  email: string;
+}
+
+interface User extends UserInput {
+  createdAt: Date;
+}
+
+function createUser(data: UserInput): User {
+  return {
+    ...data,
+    createdAt: new Date()
+  };
+}
+
+// Errors caught immediately
+const user = createUser({
+  id: "1",    // ❌ Error: Type 'string'
+  name: "Alice"
+  // ❌ Error: Missing 'email'
+});</code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>Comparison Table</h2>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>JavaScript</th>
+                        <th>TypeScript</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Type System</strong></td>
+                        <td>Dynamic (runtime)</td>
+                        <td>Static (compile-time)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Error Detection</strong></td>
+                        <td>Runtime</td>
+                        <td>Compile-time</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Learning Curve</strong></td>
+                        <td>Lower</td>
+                        <td>Higher</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Build Step</strong></td>
+                        <td>Optional</td>
+                        <td>Required</td>
+                    </tr>
+                    <tr>
+                        <td><strong>IDE Support</strong></td>
+                        <td>Good</td>
+                        <td>Excellent</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Refactoring</strong></td>
+                        <td>Manual, risky</td>
+                        <td>Automated, safe</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Code Size</strong></td>
+                        <td>Smaller</td>
+                        <td>Larger (more annotations)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Community</strong></td>
+                        <td>Massive</td>
+                        <td>Growing rapidly</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h2>When to Use TypeScript</h2>
+
+            <h3>✅ Use TypeScript When:</h3>
+            <ul>
+                <li>Building large-scale applications</li>
+                <li>Working in teams</li>
+                <li>Long-term projects that need maintenance</li>
+                <li>You want better IDE support</li>
+                <li>Refactoring is frequent</li>
+                <li>You're using frameworks that support it well (Angular, Next.js)</li>
+            </ul>
+
+            <h3>❌ Stick with JavaScript When:</h3>
+            <ul>
+                <li>Small scripts or prototypes</li>
+                <li>Quick one-off projects</li>
+                <li>Learning JavaScript basics</li>
+                <li>Team isn't ready for TypeScript</li>
+                <li>Project has tight deadlines</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Migration Strategy</h2>
+            <p>You don't have to migrate all at once! TypeScript supports gradual adoption:</p>
+
+            <ol>
+                <li><strong>Rename files:</strong> Change <code>.js</code> to <code>.ts</code> gradually</li>
+                <li><strong>Start with <code>any</code>:</strong> Use <code>any</code> type initially, refine later</li>
+                <li><strong>Enable strict mode gradually:</strong> Start loose, tighten over time</li>
+                <li><strong>Add types to new code first:</strong> Don't rewrite everything</li>
+                <li><strong>Use JSDoc comments:</strong> Get some type checking without full TypeScript</li>
+            </ol>
+
+            <pre><code class="language-javascript">// JSDoc provides some type checking in JavaScript
+/**
+ * @param {number} price
+ * @param {number} quantity
+ * @returns {number}
+ */
+function calculateTotal(price, quantity) {
+  return price * quantity;
+}</code></pre>
+        </section>
+
+        <section>
+            <h2>Popular Projects Using TypeScript</h2>
+            <ul>
+                <li>Visual Studio Code</li>
+                <li>Angular</li>
+                <li>Next.js (supports both)</li>
+                <li>Nest.js</li>
+                <li>Deno</li>
+                <li>Many React projects</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Conclusion</h2>
+            <p>TypeScript isn't a replacement for JavaScript—it's an enhancement. For small projects and scripts, JavaScript's simplicity is perfect. For large applications with multiple developers, TypeScript's type safety and tooling support can save countless hours of debugging and make refactoring much safer.</p>
+            
+            <div class="tip-box">
+                <strong>Recommendation:</strong> Try TypeScript on a small side project first. Experience the benefits firsthand before committing to it for production work. Many developers who try it never go back!
+            </div>
+        </section>
+    </main>
+    <footer class="footer">
+        <p>&copy; 2025 Coding Encounters. All rights reserved.</p>
+    </footer>
+</body>
+</html>

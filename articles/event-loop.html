@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Understanding the JavaScript Event Loop</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js" defer></script>
+    <style>
+        main {
+            background: var(--card-background);
+            margin-block: 2rem;
+            padding: clamp(1rem, 5vw, 2.5rem);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+        .info-box {
+            background: #e3f2fd;
+            border-left: 5px solid #2196f3;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 4px;
+        }
+        .warning-box {
+            background: #ffebee;
+            border-left: 5px solid #f44336;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 4px;
+        }
+        .visual-diagram {
+            background: #f5f5f5;
+            border: 2px solid #ddd;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+            font-family: monospace;
+            line-height: 1.8;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1><a href="../index.html" style="color: white; text-decoration: none;">Code Encounters</a></h1>
+    </header>
+    <main>
+        <h1>Understanding the JavaScript Event Loop: Callbacks, Microtasks, and Macrotasks</h1>
+        <p class="article-date"><time datetime="2025-11-19">November 19, 2025</time></p>
+
+        <p>The event loop is the secret behind JavaScript's asynchronous behavior. Understanding how it works is crucial for writing efficient, non-blocking code and debugging timing issues. Let's dive deep into how JavaScript handles async operations.</p>
+
+        <section>
+            <h2>The JavaScript Runtime Components</h2>
+            <p>JavaScript's runtime consists of several key components:</p>
+            
+            <div class="visual-diagram">
+┌─────────────────────────────────────┐<br>
+│         Call Stack                  │<br>
+│  (Currently executing code)         │<br>
+└─────────────────────────────────────┘<br>
+<br>
+┌─────────────────────────────────────┐<br>
+│         Heap                        │<br>
+│  (Memory allocation)                │<br>
+└─────────────────────────────────────┘<br>
+<br>
+┌─────────────────────────────────────┐<br>
+│    Microtask Queue                  │<br>
+│  (Promises, queueMicrotask)         │<br>
+└─────────────────────────────────────┘<br>
+<br>
+┌─────────────────────────────────────┐<br>
+│    Macrotask Queue                  │<br>
+│  (setTimeout, setInterval, I/O)     │<br>
+└─────────────────────────────────────┘
+            </div>
+
+            <ul>
+                <li><strong>Call Stack:</strong> Where function execution happens (LIFO - Last In, First Out)</li>
+                <li><strong>Heap:</strong> Memory pool for object allocation</li>
+                <li><strong>Microtask Queue:</strong> High-priority async tasks (Promises, queueMicrotask)</li>
+                <li><strong>Macrotask Queue:</strong> Lower-priority async tasks (setTimeout, setInterval, I/O)</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>How the Event Loop Works</h2>
+            <p>The event loop continuously checks if the call stack is empty. When it is:</p>
+            <ol>
+                <li>Execute ALL microtasks in the microtask queue</li>
+                <li>Execute ONE macrotask from the macrotask queue</li>
+                <li>Repeat</li>
+            </ol>
+
+            <div class="info-box">
+                <strong>Key Rule:</strong> Microtasks always run before macrotasks. All microtasks must complete before the next macrotask can run.
+            </div>
+        </section>
+
+        <section>
+            <h2>Example: Understanding Execution Order</h2>
+            <pre><code class="language-javascript">console.log('1: Synchronous');
+
+setTimeout(() => {
+  console.log('2: setTimeout (macrotask)');
+}, 0);
+
+Promise.resolve().then(() => {
+  console.log('3: Promise (microtask)');
+});
+
+console.log('4: Synchronous');
+
+// Output:
+// 1: Synchronous
+// 4: Synchronous
+// 3: Promise (microtask)
+// 2: setTimeout (macrotask)</code></pre>
+
+            <p><strong>Why this order?</strong></p>
+            <ol>
+                <li>Synchronous code runs first (1, 4)</li>
+                <li>Call stack empties</li>
+                <li>Event loop checks microtask queue → runs Promise (3)</li>
+                <li>Event loop checks macrotask queue → runs setTimeout (2)</li>
+            </ol>
+        </section>
+
+        <section>
+            <h2>Microtasks vs Macrotasks</h2>
+            
+            <h3>Microtasks (High Priority)</h3>
+            <pre><code class="language-javascript">// Promise callbacks
+Promise.resolve().then(() => console.log('microtask 1'));
+
+// queueMicrotask
+queueMicrotask(() => console.log('microtask 2'));
+
+// async/await (uses Promises internally)
+async function example() {
+  await Promise.resolve();
+  console.log('microtask 3');
+}
+example();</code></pre>
+
+            <h3>Macrotasks (Lower Priority)</h3>
+            <pre><code class="language-javascript">// setTimeout
+setTimeout(() => console.log('macrotask 1'), 0);
+
+// setInterval
+setInterval(() => console.log('macrotask 2'), 1000);
+
+// setImmediate (Node.js only)
+setImmediate(() => console.log('macrotask 3'));
+
+// I/O operations
+fs.readFile('file.txt', () => console.log('macrotask 4'));</code></pre>
+        </section>
+
+        <section>
+            <h2>Complex Example: Nested Async Operations</h2>
+            <pre><code class="language-javascript">console.log('Start');
+
+setTimeout(() => {
+  console.log('Timeout 1');
+  Promise.resolve().then(() => console.log('Promise in Timeout 1'));
+}, 0);
+
+Promise.resolve()
+  .then(() => {
+    console.log('Promise 1');
+    setTimeout(() => console.log('Timeout in Promise 1'), 0);
+  })
+  .then(() => console.log('Promise 2'));
+
+setTimeout(() => console.log('Timeout 2'), 0);
+
+console.log('End');
+
+// Output:
+// Start
+// End
+// Promise 1
+// Promise 2
+// Timeout 1
+// Promise in Timeout 1
+// Timeout in Promise 1
+// Timeout 2</code></pre>
+
+            <p><strong>Step-by-step breakdown:</strong></p>
+            <ol>
+                <li>Sync: "Start", "End"</li>
+                <li>Microtasks: "Promise 1", "Promise 2" (schedules new timeout)</li>
+                <li>Macrotask: "Timeout 1" (schedules new promise)</li>
+                <li>Microtask: "Promise in Timeout 1"</li>
+                <li>Macrotask: "Timeout in Promise 1"</li>
+                <li>Macrotask: "Timeout 2"</li>
+            </ol>
+        </section>
+
+        <section>
+            <h2>Common Pitfalls</h2>
+
+            <h3>1. Infinite Microtask Loop (Blocks UI)</h3>
+            <pre><code class="language-javascript">// ❌ This will freeze the browser!
+function infiniteMicrotasks() {
+  Promise.resolve().then(infiniteMicrotasks);
+}
+infiniteMicrotasks();
+
+// The event loop never gets to macrotasks or rendering!</code></pre>
+
+            <div class="warning-box">
+                <strong>Warning:</strong> Infinite microtasks will block the browser completely because macrotasks (including rendering) never get a chance to run.
+            </div>
+
+            <h3>2. setTimeout(fn, 0) is Not Immediate</h3>
+            <pre><code class="language-javascript">console.log('1');
+
+setTimeout(() => console.log('2'), 0);
+
+Promise.resolve().then(() => console.log('3'));
+
+console.log('4');
+
+// Output: 1, 4, 3, 2
+// setTimeout is NOT immediate - promises run first!</code></pre>
+        </section>
+
+        <section>
+            <h2>Practical Applications</h2>
+
+            <h3>Breaking Up Long Tasks</h3>
+            <pre><code class="language-javascript">// Process large array without blocking UI
+async function processLargeArray(items) {
+  const chunkSize = 100;
+  
+  for (let i = 0; i < items.length; i += chunkSize) {
+    const chunk = items.slice(i, i + chunkSize);
+    
+    // Process chunk
+    chunk.forEach(item => processItem(item));
+    
+    // Yield to browser (allow rendering)
+    await new Promise(resolve => setTimeout(resolve, 0));
+  }
+}
+
+// Or using queueMicrotask for faster yielding
+function processWithMicrotask(items) {
+  let i = 0;
+  
+  function processChunk() {
+    const end = Math.min(i + 100, items.length);
+    
+    while (i < end) {
+      processItem(items[i]);
+      i++;
+    }
+    
+    if (i < items.length) {
+      queueMicrotask(processChunk);
+    }
+  }
+  
+  processChunk();
+}</code></pre>
+
+            <h3>Ensuring DOM Updates</h3>
+            <pre><code class="language-javascript">// Update DOM, then do something after it renders
+element.textContent = 'Updated!';
+
+// Wrong - runs before render
+setTimeout(() => {
+  // This might run before the DOM actually updates
+}, 0);
+
+// Better - use requestAnimationFrame
+requestAnimationFrame(() => {
+  // Runs after the next paint
+  console.log('DOM has been updated and rendered');
+});</code></pre>
+        </section>
+
+        <section>
+            <h2>Debugging Event Loop Issues</h2>
+            <pre><code class="language-javascript">// Add timestamps to track execution
+function log(msg) {
+  console.log(`[${performance.now().toFixed(2)}ms] ${msg}`);
+}
+
+log('Start');
+
+setTimeout(() => log('Timeout 1'), 0);
+setTimeout(() => log('Timeout 2'), 0);
+
+Promise.resolve().then(() => log('Promise 1'));
+Promise.resolve().then(() => log('Promise 2'));
+
+log('End');
+
+// Output shows exact timing:
+// [0.10ms] Start
+// [0.25ms] End
+// [0.40ms] Promise 1
+// [0.45ms] Promise 2
+// [1.20ms] Timeout 1
+// [1.25ms] Timeout 2</code></pre>
+        </section>
+
+        <section>
+            <h2>Best Practices</h2>
+            <ul>
+                <li><strong>Use Promises for async operations:</strong> More predictable than callbacks</li>
+                <li><strong>Avoid blocking the event loop:</strong> Break up long-running tasks</li>
+                <li><strong>Understand microtask priority:</strong> Use for critical updates</li>
+                <li><strong>Don't create infinite microtasks:</strong> Always have an exit condition</li>
+                <li><strong>Use async/await:</strong> Makes async code more readable</li>
+                <li><strong>Profile your code:</strong> Use browser DevTools to identify bottlenecks</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Conclusion</h2>
+            <p>The event loop is the heart of JavaScript's asynchronous behavior. Understanding the difference between microtasks and macrotasks, and how they're prioritized, is essential for writing efficient, non-blocking code. Remember: synchronous code runs first, then all microtasks, then one macrotask, and repeat.</p>
+            <p>Master the event loop, and you'll be able to write better async code, debug timing issues more effectively, and build more responsive applications.</p>
+        </section>
+    </main>
+    <footer class="footer">
+        <p>&copy; 2025 Coding Encounters. All rights reserved.</p>
+    </footer>
+</body>
+</html>

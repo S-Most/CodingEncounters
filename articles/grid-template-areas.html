@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS Grid Template Areas: Building Complex Layouts with Named Regions</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js" defer></script>
+    <style>
+        main { background: var(--card-background); margin-block: 2rem; padding: clamp(1rem, 5vw, 2.5rem); border-radius: var(--border-radius); box-shadow: var(--shadow); }
+        .info-box { background: #e3f2fd; border-left: 5px solid #2196f3; padding: 1rem; margin-top: 1rem; border-radius: 4px; }
+        .tip-box { background: #f1f8e9; border-left: 5px solid #8bc34a; padding: 1rem; margin-top: 1rem; border-radius: 4px; }
+        .visual-grid { background: #f5f5f5; border: 2px solid #ddd; padding: 1.5rem; margin: 1.5rem 0; border-radius: 8px; font-family: monospace; line-height: 2; }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1><a href="../index.html" style="color: white; text-decoration: none;">Code Encounters</a></h1>
+    </header>
+    <main>
+        <h1>CSS Grid Template Areas: Building Complex Layouts with Named Regions</h1>
+        <p class="article-date"><time datetime="2025-11-19">November 19, 2025</time></p>
+
+        <p>Grid template areas are one of CSS Grid's most powerful features. They let you create complex layouts using named regions, making your CSS more readable and maintainable. Let's explore how to use them effectively.</p>
+
+        <section>
+            <h2>What are Grid Template Areas?</h2>
+            <p>Grid template areas allow you to name sections of your grid and assign elements to those named areas. This creates a visual representation of your layout right in your CSS.</p>
+
+            <pre><code class="language-css">.container {
+  display: grid;
+  grid-template-areas:
+    "header header header"
+    "sidebar main main"
+    "footer footer footer";
+  grid-template-columns: 200px 1fr 1fr;
+  grid-template-rows: auto 1fr auto;
+  gap: 1rem;
+  min-height: 100vh;
+}
+
+.header  { grid-area: header; }
+.sidebar { grid-area: sidebar; }
+.main    { grid-area: main; }
+.footer  { grid-area: footer; }</code></pre>
+
+            <div class="visual-grid">
+┌─────────────────────────────────┐<br>
+│          header                 │<br>
+├─────────┬───────────────────────┤<br>
+│ sidebar │       main            │<br>
+│         │                       │<br>
+├─────────┴───────────────────────┤<br>
+│          footer                 │<br>
+└─────────────────────────────────┘
+            </div>
+        </section>
+
+        <section>
+            <h2>Basic Syntax</h2>
+            <pre><code class="language-css">/* Define the grid template */
+.container {
+  display: grid;
+  grid-template-areas:
+    "area1 area2"
+    "area3 area3";
+}
+
+/* Assign elements to areas */
+.item1 { grid-area: area1; }
+.item2 { grid-area: area2; }
+.item3 { grid-area: area3; }</code></pre>
+
+            <div class="info-box">
+                <strong>Key Rules:</strong>
+                <ul>
+                    <li>Each string represents a row</li>
+                    <li>Each word in a string represents a column</li>
+                    <li>Same name = same area (spans multiple cells)</li>
+                    <li>Use a dot (.) for empty cells</li>
+                </ul>
+            </div>
+        </section>
+
+        <section>
+            <h2>Common Layout Patterns</h2>
+
+            <h3>1. Classic Website Layout</h3>
+            <pre><code class="language-css">.page {
+  display: grid;
+  grid-template-areas:
+    "header header header"
+    "nav content sidebar"
+    "footer footer footer";
+  grid-template-columns: 200px 1fr 300px;
+  grid-template-rows: auto 1fr auto;
+  min-height: 100vh;
+  gap: 1rem;
+}
+
+header  { grid-area: header; }
+nav     { grid-area: nav; }
+main    { grid-area: content; }
+aside   { grid-area: sidebar; }
+footer  { grid-area: footer; }</code></pre>
+
+            <h3>2. Dashboard Layout</h3>
+            <pre><code class="language-css">.dashboard {
+  display: grid;
+  grid-template-areas:
+    "sidebar header header header"
+    "sidebar stats stats stats"
+    "sidebar chart1 chart2 chart3"
+    "sidebar footer footer footer";
+  grid-template-columns: 250px repeat(3, 1fr);
+  grid-template-rows: auto auto 1fr auto;
+  gap: 1rem;
+  height: 100vh;
+}
+
+.sidebar { grid-area: sidebar; }
+.header  { grid-area: header; }
+.stats   { grid-area: stats; }
+.chart1  { grid-area: chart1; }
+.chart2  { grid-area: chart2; }
+.chart3  { grid-area: chart3; }
+.footer  { grid-area: footer; }</code></pre>
+
+            <h3>3. Card Layout with Empty Spaces</h3>
+            <pre><code class="language-css">.gallery {
+  display: grid;
+  grid-template-areas:
+    "img1 img1 img2 img3"
+    "img1 img1 img4 img5"
+    "img6 img7 img7 img5"
+    "img8 img7 img7 .";
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(4, 200px);
+  gap: 1rem;
+}
+
+.img1 { grid-area: img1; }
+.img2 { grid-area: img2; }
+/* ... etc */</code></pre>
+        </section>
+
+        <section>
+            <h2>Responsive Layouts</h2>
+            <p>Grid template areas shine in responsive design. You can completely reorganize your layout at different breakpoints:</p>
+
+            <pre><code class="language-css">/* Mobile: Single column */
+.container {
+  display: grid;
+  grid-template-areas:
+    "header"
+    "nav"
+    "content"
+    "sidebar"
+    "footer";
+  grid-template-columns: 1fr;
+}
+
+/* Tablet: Two columns */
+@media (min-width: 768px) {
+  .container {
+    grid-template-areas:
+      "header header"
+      "nav nav"
+      "content sidebar"
+      "footer footer";
+    grid-template-columns: 2fr 1fr;
+  }
+}
+
+/* Desktop: Three columns */
+@media (min-width: 1024px) {
+  .container {
+    grid-template-areas:
+      "header header header"
+      "nav content sidebar"
+      "footer footer footer";
+    grid-template-columns: 200px 1fr 300px;
+  }
+}</code></pre>
+
+            <div class="tip-box">
+                <strong>Pro Tip:</strong> Notice how the HTML order doesn't change—only the grid template areas! This is great for accessibility and SEO.
+            </div>
+        </section>
+
+        <section>
+            <h2>Advanced Techniques</h2>
+
+            <h3>Overlapping Areas</h3>
+            <p>You can create overlapping areas by using <code>grid-area</code> with line numbers:</p>
+
+            <pre><code class="language-css">.container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(4, 100px);
+}
+
+.background {
+  grid-area: 1 / 1 / 5 / 5; /* Covers entire grid */
+  z-index: 0;
+}
+
+.content {
+  grid-area: 2 / 2 / 4 / 4; /* Centered, smaller */
+  z-index: 1;
+}</code></pre>
+
+            <h3>Combining with Other Grid Properties</h3>
+            <pre><code class="language-css">.container {
+  display: grid;
+  grid-template-areas:
+    "header header"
+    "sidebar main"
+    "footer footer";
+  grid-template-columns: minmax(200px, 1fr) 3fr;
+  grid-template-rows: auto 1fr auto;
+  gap: clamp(1rem, 2vw, 2rem);
+}
+
+/* Items can still use grid-column/grid-row */
+.special-item {
+  grid-area: main;
+  justify-self: center;
+  align-self: start;
+}</code></pre>
+        </section>
+
+        <section>
+            <h2>Real-World Example: Blog Layout</h2>
+            <pre><code class="language-css">.blog-post {
+  display: grid;
+  grid-template-areas:
+    "title title title"
+    "meta meta meta"
+    "featured featured sidebar"
+    "content content sidebar"
+    "comments comments sidebar"
+    "footer footer footer";
+  grid-template-columns: 1fr 1fr 300px;
+  grid-template-rows: auto auto auto 1fr auto auto;
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.post-title    { grid-area: title; }
+.post-meta     { grid-area: meta; }
+.featured-img  { grid-area: featured; }
+.post-content  { grid-area: content; }
+.comments      { grid-area: comments; }
+.sidebar       { grid-area: sidebar; }
+.post-footer   { grid-area: footer; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .blog-post {
+    grid-template-areas:
+      "title"
+      "meta"
+      "featured"
+      "content"
+      "sidebar"
+      "comments"
+      "footer";
+    grid-template-columns: 1fr;
+  }
+}</code></pre>
+        </section>
+
+        <section>
+            <h2>Common Mistakes to Avoid</h2>
+            <ul>
+                <li><strong>Non-rectangular areas:</strong> All cells with the same name must form a rectangle</li>
+                <li><strong>Inconsistent columns:</strong> Each row must have the same number of columns</li>
+                <li><strong>Typos in names:</strong> Area names are case-sensitive</li>
+                <li><strong>Forgetting quotes:</strong> Each row must be in quotes</li>
+            </ul>
+
+            <pre><code class="language-css">/* ❌ Wrong - non-rectangular */
+grid-template-areas:
+  "header header"
+  "main main"
+  "main sidebar"; /* 'main' is not rectangular! */
+
+/* ✅ Correct */
+grid-template-areas:
+  "header header"
+  "main sidebar"
+  "main sidebar";</code></pre>
+        </section>
+
+        <section>
+            <h2>Browser Support and Fallbacks</h2>
+            <p>Grid template areas have excellent browser support (all modern browsers). For older browsers, provide a fallback:</p>
+
+            <pre><code class="language-css">/* Fallback for old browsers */
+.container {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Grid for modern browsers */
+@supports (display: grid) {
+  .container {
+    display: grid;
+    grid-template-areas:
+      "header"
+      "main"
+      "footer";
+  }
+}</code></pre>
+        </section>
+
+        <section>
+            <h2>Best Practices</h2>
+            <ul>
+                <li>Use descriptive, semantic names for areas</li>
+                <li>Keep the visual representation readable (align columns)</li>
+                <li>Use template areas for major layout sections</li>
+                <li>Combine with other grid properties for fine control</li>
+                <li>Test responsive layouts at all breakpoints</li>
+                <li>Consider accessibility—HTML order matters for screen readers</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Conclusion</h2>
+            <p>Grid template areas make complex layouts intuitive and maintainable. By naming your grid regions, you create self-documenting CSS that's easy to understand and modify. They're especially powerful for responsive design, allowing you to completely reorganize layouts without changing HTML structure.</p>
+            <p>Start using grid template areas in your next project—you'll wonder how you ever lived without them!</p>
+        </section>
+    </main>
+    <footer class="footer">
+        <p>&copy; 2025 Coding Encounters. All rights reserved.</p>
+    </footer>
+</body>
+</html>
