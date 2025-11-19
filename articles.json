@@ -6,15 +6,17 @@
     "rendering-strategies.html",
     "qwiks-magic.html",
     "json-vs-toml.html",
-    "flexbox-vs-grid.html",
     "es-modules-vs-commonjs.html",
     "async-await-promises-callbacks.html",
-    "javascript-closures.html",
     "array-methods.html",
-    "event-loop.html",
     "css-positioning.html",
     "typescript-vs-javascript.html",
-    "grid-template-areas.html",
     "understanding-this.html"
+  ],
+  "nonshowing":[
+    "event-loop.html",
+    "flexbox-vs-grid.html",
+    "grid-template-areas.html",
+    "javascript-closures.html"
   ]
 }
